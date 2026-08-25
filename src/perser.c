@@ -71,5 +71,4 @@ void perser(int argc, char **argv)
     int dongle_cooldown = atoi(argv[7]);
     char    *scheduler = argv[8];
     is_fifo_edf(scheduler);
-
 }
