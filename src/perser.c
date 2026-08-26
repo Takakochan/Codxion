@@ -1,13 +1,27 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   perser.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/08/26 15:15:30 by tkunugi           #+#    #+#             */
+/*   Updated: 2026/08/26 18:25:02 by tkunugi          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include "codexion.h"
 
 int error_num_parameter(int argc)
 {
     if (argc != 9)
     {
         fprintf(stderr, "Error: Missing some parameter");
+        exit(EXIT_FAILURE);
     }
     return (1);
 }
@@ -44,6 +58,16 @@ int is_fifo_edf(char *str)
     return (1);
 }
 
+int num_coders(char *str)
+{
+    if (atoi(str) == 0)
+    {
+        fprintf(stderr, "Error: Number of coder must be greater than 0");
+        exit(EXIT_FAILURE);
+    }
+    return (1);
+}
+
 int perser_error_handler(int argc, char **argv)
 {
     int i;
@@ -55,6 +79,7 @@ int perser_error_handler(int argc, char **argv)
         is_valid_num(argv[i]);
         i++;
     }
+    num_coders(argv[1]);
     is_fifo_edf(argv[8]);
     return (1);
 }
