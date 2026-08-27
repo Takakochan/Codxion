@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   perser.c                                           :+:      :+:    :+:   */
+/*   parser.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:15:30 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/08/26 18:25:02 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/08/27 19:26:36 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ int num_coders(char *str)
     return (1);
 }
 
-int perser_error_handler(int argc, char **argv)
+int parser_error_handler(int argc, char **argv)
 {
     int i;
 
@@ -84,16 +84,20 @@ int perser_error_handler(int argc, char **argv)
     return (1);
 }
 
-void perser(int argc, char **argv)
+t_parameter parser(int argc, char **argv)
 {
-    perser_error_handler(argc, argv);
-    int number_of_coders = atoi(argv[1]);
-    int time_to_burnout = atoi(argv[2]);
-    int time_to_compile = atoi(argv[3]);
-    int time_to_debug = atoi(argv[4]);
-    int time_to_refactor = atoi(argv[5]);
-    int number_of_compiles_required = atoi(argv[6]);
-    int dongle_cooldown = atoi(argv[7]);
-    char    *scheduler = argv[8];
-    is_fifo_edf(scheduler);
+    parser_error_handler(argc, argv);
+    t_parameter param = {
+        .number_of_coders = atoi(argv[1]),
+        .time_to_burnout = atoi(argv[2]),
+        .time_to_compile = atoi(argv[3]),
+        .time_to_debug = atoi(argv[4]),
+        .time_to_refactor = atoi(argv[5]),
+        .number_of_compiles_required = atoi(argv[6]),
+        .dongle_cooldown = atoi(argv[7]),
+        .scheduler = argv[8]
+    };
+    is_fifo_edf(param.scheduler);
+    
+    return param
 }
