@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:14:50 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/08/28 14:17:07 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/08/28 19:15:44 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,20 +37,24 @@ typedef struct s_dongle{
     t_parameter parameter;
     pthread_mutex_t mutex;
     pthread_cond_t condition;
-    
 } t_dongle;
+
 
 typedef struct s_coder{
     unsigned int coder_id;
     t_dongle *left_hand;
     t_dongle *right_hand;
-    t_parameter parameter;
+    long last_compiled;
+    unsigned int compile_count;
+    pthread_cond_t condition;
 } t_coder;
+
 
 typedef struct s_session{
     t_parameter parameter;
     t_dongle *dongles;
     t_coder *coders;
+    long start_time;
 } t_session;
 
 // t_dongle *init(
@@ -79,7 +83,9 @@ t_parameter parser_init_param(int argc, char **argv);
 
 /*init*/
 t_dongle *init_dongles(t_parameter params, int N);
-t_coder *init_coders(t_parameter params, int N);
+t_coder *init_coders(t_session *session, int N);
 t_session *init_session(t_parameter params);
 
+/* utils*/
+long codexion_clock(void);
 #endif

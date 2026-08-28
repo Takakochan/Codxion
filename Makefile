@@ -10,10 +10,11 @@ NAME	=	codexion
 
 #++++++++++COMPILER+++++++++++
 CC	= 	cc
-CFLAGS	 =	-Wall -Wextra -Werror -pthread -I includes
+CFLAGS	 =	-Wall -Wextra -pthread -I includes
 RM	:=	rm -f
 RMDIR := rm -rf
-SRCS := src/main.c src/perser.c src/threads.c src/utils.c src/print.c
+SRCS 	:= 	src/main.c src/parser.c src/init.c src/utils.c \
+		src/scheduler.c src/coder.c src/dongle.c src/eye.c
 OBJS := $(SRCS:.c=.o)
 
 #++++++++++RULES+++++++++++
@@ -40,7 +41,3 @@ fclean: clean
 	@echo "$(GREEN)✓ Everything cleaned!$(RESET)"
 
 re: fclean all
-
-
-
-#++++++++++COLORS+++++++++++
