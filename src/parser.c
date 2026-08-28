@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:15:30 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/08/27 19:26:36 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/08/28 14:07:39 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ int parser_error_handler(int argc, char **argv)
     return (1);
 }
 
-t_parameter parser(int argc, char **argv)
+t_parameter parser_init_param(int argc, char **argv)
 {
     parser_error_handler(argc, argv);
     t_parameter param = {
@@ -99,5 +99,5 @@ t_parameter parser(int argc, char **argv)
     };
     is_fifo_edf(param.scheduler);
     
-    return param
+    return param;
 }
