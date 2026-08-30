@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:14:50 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/08/30 16:47:21 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/08/30 17:27:28 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ typedef struct s_coder{
     long last_compiled;
     unsigned int compile_count;
     pthread_cond_t condition;
+    t_session *session;
 } t_coder;
 
 
@@ -89,12 +90,15 @@ t_session *init_session(t_parameter params);
 
 /* utils*/
 long codexion_clock(void);
-void ms_to_timespec(long ms, struct timespec *ts)
+void ms_to_timespec(long ms, struct timespec *ts);
 
 
 /* dongle */
 int dongle_take(t_dongle *dongle);
-void dongle_release(t_dongle *dongle)
+void dongle_release(t_dongle *dongle);
+
+/* coder */
+void coder_workflow(t_coder *coder);
 
 
 
