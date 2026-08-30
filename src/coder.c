@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:23:28 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/08/30 17:27:04 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/08/30 18:26:00 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,16 +58,6 @@ void coder_workflow(t_coder *coder)
     coder_compiling(coder);
     coder_debugging(coder);
     coder_refactoring(coder);
-    // is_he_burnedout(coder);
+    is_he_burnedout(coder);
     
 }
-
-// 1 1 is compiling
-// 201 1 is debugging
-// 401 1 is refactoring
-// 402 2 has taken a dongle
-// 403 2 has taken a dongle
-// 403 2 is compiling
-// 603 2 is debugging
-// 803 2 is refactoring
-// 1204 3 burned out

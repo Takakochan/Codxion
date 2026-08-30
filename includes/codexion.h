@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:14:50 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/08/30 17:27:28 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/08/30 18:25:49 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # include <stdlib.h>
 # include <string.h>
 # include <pthread.h>
+# include <unistd.h>
 
 
 typedef struct s_parameter{
@@ -59,16 +60,6 @@ typedef struct s_session{
     long start_time;
 } t_session;
 
-// t_dongle *init(
-//     unsigned int dongle_id,
-//     long released_time,
-//     t_parameter parameter,
-//     pthread_mutex_t mutex,
-//     pthread_cond_t condition);
-// t_dongle *init_dongles(t_parameter params, int N);
-// t_coder *init_coders(t_parameter params, int N);
-// t_session *init_session(t_parameter params);
-
 
 /*main*/
 
@@ -100,6 +91,8 @@ void dongle_release(t_dongle *dongle);
 /* coder */
 void coder_workflow(t_coder *coder);
 
+/* eye (monitor)*/
+void is_he_burnedout(t_coder *coder);
 
 
 #endif
