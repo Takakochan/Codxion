@@ -6,9 +6,11 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:23:28 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/08/27 21:24:22 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/08/30 17:01:21 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdio.h>
 #include <pthread.h>
+
+

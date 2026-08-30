@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:14:50 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/08/28 19:15:44 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/08/30 16:47:21 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ typedef struct s_parameter{
 
 typedef struct s_dongle{
     unsigned int dongle_id;
+    unsigned int used;
     long released_time;
     t_parameter parameter;
     pthread_mutex_t mutex;
@@ -88,4 +89,13 @@ t_session *init_session(t_parameter params);
 
 /* utils*/
 long codexion_clock(void);
+void ms_to_timespec(long ms, struct timespec *ts)
+
+
+/* dongle */
+int dongle_take(t_dongle *dongle);
+void dongle_release(t_dongle *dongle)
+
+
+
 #endif
