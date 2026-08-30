@@ -6,18 +6,15 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:14:41 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/08/28 17:31:59 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/08/30 18:46:01 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-
-#include <stdio.h>
 #include "codexion.h"
-
 
 int main(int argc, char **argv)
 {
     t_parameter params = parser_init_param(argc, argv);
     t_session session = *init_session(params);
-    codexion_clock();
+    printf("meow");
 }

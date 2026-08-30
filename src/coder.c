@@ -6,12 +6,9 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:23:28 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/08/30 18:26:00 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/08/30 18:38:27 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-#include <stdio.h>
-#include <pthread.h>
 
 #include "codexion.h"
 
@@ -22,14 +19,14 @@ static void coder_hand(t_coder *coder)
     {
         dongle_take(coder->left_hand); 
         print_log(coder, " has taken a dongle\n");
-        dongle_taka(coder->right_hand);
+        dongle_take(coder->right_hand);
         print_log(coder, " has taken a dongle\n");
     }
     else
     {
         dongle_take(coder->left_hand);
         print_log(coder, " has taken a dongle\n");
-        dongle_taka(coder->right_hand);
+        dongle_take(coder->right_hand);
         print_log(coder, " has taken a dongle\n");
     }
 }
@@ -59,5 +56,4 @@ void coder_workflow(t_coder *coder)
     coder_debugging(coder);
     coder_refactoring(coder);
     is_he_burnedout(coder);
-    
 }

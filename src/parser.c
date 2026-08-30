@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:15:30 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/08/28 14:07:39 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/08/30 18:44:33 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ int is_valid_num(char *str)
     int i;
 
     i = 0;
-    if (str[i] == "\0")
+    if (str[i] == '\0')
     {
         fprintf(stderr, "Error: Empty input");
         exit(EXIT_FAILURE);

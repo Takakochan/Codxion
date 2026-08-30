@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:14:50 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/08/30 18:25:49 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/08/30 18:35:22 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ typedef struct s_dongle{
 } t_dongle;
 
 
+typedef struct s_session t_session;
 typedef struct s_coder{
     unsigned int coder_id;
     t_dongle *left_hand;
@@ -82,7 +83,10 @@ t_session *init_session(t_parameter params);
 /* utils*/
 long codexion_clock(void);
 void ms_to_timespec(long ms, struct timespec *ts);
-
+void print_log(t_coder *coder, char *str);
+void	*ft_calloc(size_t nmemb, size_t size);
+int	numlen(long n);
+char	*ft_itoa(long num);
 
 /* dongle */
 int dongle_take(t_dongle *dongle);

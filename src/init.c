@@ -6,13 +6,9 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/28 13:49:03 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/08/28 19:39:25 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/08/30 18:29:24 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-# include <stdlib.h>
-# include <stdio.h>
-# include <string.h>
 
 # include "codexion.h"
 
@@ -41,7 +37,7 @@ t_coder *init_coders(t_session *session, int N)
         coders[i].right_hand = &session->dongles[(i + 1) % N];
         coders[i].last_compiled = 0;
         coders[i].compile_count = 0;
-        // coders[i].condition = ????   
+        coders[i].session = session;  
     }
     return (coders);
 }
