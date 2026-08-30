@@ -47,9 +47,11 @@ t_coder	*init_coders(t_session *session, int N)
 
 t_session	*init_session(t_parameter params)
 {
-	int N = params.number_of_coders;
+	int			N;
+	t_session	*session;
 
-	t_session *session = malloc(sizeof(t_session));
+	N = params.number_of_coders;
+	session = malloc(sizeof(t_session));
 	if (!session)
 		return (NULL);
 	session->parameter = params;
@@ -58,6 +60,5 @@ t_session	*init_session(t_parameter params)
 	if (!session->dongles)
 		return (free(session), NULL);
 	session->coders = init_coders(session, N);
-
 	return (session);
 }

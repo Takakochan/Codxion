@@ -97,6 +97,5 @@ t_parameter	parser_init_param(int argc, char **argv)
 		.dongle_cooldown = atoi(argv[7]),
 		.scheduler = argv[8]};
 	is_fifo_edf(param.scheduler);
-
 	return (param);
 }

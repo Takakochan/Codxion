@@ -14,7 +14,10 @@
 
 int	main(int argc, char **argv)
 {
-	t_parameter params = parser_init_param(argc, argv);
-	t_session session = *init_session(params);
+	t_parameter	params;
+	t_session	session;
+
+	params = parser_init_param(argc, argv);
+	session = *init_session(params);
 	printf("meow");
 }
