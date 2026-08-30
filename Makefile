@@ -13,7 +13,7 @@ CC	= 	cc
 CFLAGS	 =	-Wall -Wextra -pthread -I includes
 RM	:=	rm -f
 RMDIR := rm -rf
-SRCS 	:= 	src/main.c src/parser.c src/init.c src/utils.c src/coder.c src/dongle.c src/eye.c
+SRCS 	:= 	src/main.c src/parser.c src/init.c src/utils.c src/coder.c src/dongle.c src/eye.c src/scheduler.c
 OBJS := $(SRCS:.c=.o)
 
 #++++++++++RULES+++++++++++
