@@ -6,36 +6,36 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:14:11 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/08/30 17:24:36 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/08/30 19:20:43 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "codexion.h"
 #include <stdio.h>
 #include <sys/time.h>
-#include "codexion.h"
 
-long codexion_clock(void)
+long	codexion_clock(void)
 {
-    struct timeval tv;
-    
-    if (gettimeofday(&tv, NULL) != 0)
-        return (-1);
-    return ((long)tv.tv_sec * 1000 + tv.tv_usec / 1000);
+	struct timeval	tv;
+
+	if (gettimeofday(&tv, NULL) != 0)
+		return (-1);
+	return ((long)tv.tv_sec * 1000 + tv.tv_usec / 1000);
 }
 
-void ms_to_timespec(long ms, struct timespec *ts)
+void	ms_to_timespec(long ms, struct timespec *ts)
 {
-    ts->tv_sec = ms / 1000;
-    ts->tv_nsec = (ms % 1000) * 1000000L;
+	ts->tv_sec = ms / 1000;
+	ts->tv_nsec = (ms % 1000) * 1000000L;
 }
 
-void print_log(t_coder *coder, char *str)
+void	print_log(t_coder *coder, char *str)
 {
-    long timestamp;
-    timestamp = codexion_clock() - coder->session->start_time;
-    printf("%ld %u %s\n", timestamp, coder->coder_id, str);
-}
+	long	timestamp;
 
+	timestamp = codexion_clock() - coder->session->start_time;
+	printf("%ld %u %s\n", timestamp, coder->coder_id, str);
+}
 
 void	*ft_calloc(size_t nmemb, size_t size)
 {
@@ -46,7 +46,7 @@ void	*ft_calloc(size_t nmemb, size_t size)
 	ptr = (size_t *)malloc(nmemb * size);
 	if (ptr == NULL)
 		return (NULL);
-	memset(ptr, 0, nmemb * size); 
+	memset(ptr, 0, nmemb * size);
 	return (ptr);
 }
 
@@ -91,4 +91,3 @@ char	*ft_itoa(long num)
 	}
 	return (result);
 }
-
