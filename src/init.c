@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/28 13:49:03 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/08/30 19:20:27 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/08/31 18:25:12 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,18 @@
 
 t_dongle	*init_dongles(t_parameter params, int N)
 {
+
 	t_dongle	*dongles;
+
 
 	dongles = malloc(sizeof(t_dongle) * N);
 	for (int i = 0; i < N; i++)
 	{
 		dongles[i].dongle_id = i;
 		dongles[i].released_time = 0;
+		dongles[i].holder = NULL;
 		dongles[i].parameter = params;
+		dongles[i].que.size = 0;
 		pthread_mutex_init(&dongles[i].mutex, NULL); //explore!!!
 		pthread_cond_init(&dongles[i].condition, NULL);
 	}

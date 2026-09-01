@@ -13,7 +13,7 @@ CC	= 	cc
 CFLAGS	 =	-Wall -Wextra -pthread -I includes
 RM	:=	rm -f
 RMDIR := rm -rf
-SRCS 	:= 	src/main.c src/parser.c src/init.c src/utils.c src/coder.c src/dongle.c src/eye.c src/scheduler.c
+SRCS 	:= 	src/main.c src/parser.c src/init.c src/utils.c src/coder.c src/dongle.c src/eye.c src/scheduler.c src/heap.c
 OBJS := $(SRCS:.c=.o)
 
 #++++++++++RULES+++++++++++
@@ -33,7 +33,7 @@ clean:
 	@echo "$(RED)Cleaning object files...$(RESET)"
 	@$(RM) $(OBJS)
 	@echo "$(GREEN)✓ Everything cleaned!$(RESET)"
-	
+
 fclean: clean
 	@echo "$(RED)Removing executables...$(RESET)"
 	@$(RM) $(NAME)

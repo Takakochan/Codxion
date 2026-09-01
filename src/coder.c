@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:23:28 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/08/30 19:20:20 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/01 18:16:39 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,16 +16,16 @@ static void	coder_hand(t_coder *coder)
 {
 	if (coder->left_hand->dongle_id < coder->right_hand->dongle_id)
 	{
-		dongle_take(coder->left_hand);
+		dongle_take(coder->left_hand, coder);
 		print_log(coder, " has taken a dongle\n");
-		dongle_take(coder->right_hand);
+		dongle_take(coder->right_hand, coder);
 		print_log(coder, " has taken a dongle\n");
 	}
 	else
 	{
-		dongle_take(coder->left_hand);
+		dongle_take(coder->left_hand, coder);
 		print_log(coder, " has taken a dongle\n");
-		dongle_take(coder->right_hand);
+		dongle_take(coder->right_hand, coder);
 		print_log(coder, " has taken a dongle\n");
 	}
 }
@@ -48,8 +48,9 @@ static void	coder_refactoring(t_coder *coder)
 	usleep(coder->session->parameter.time_to_refactor);
 }
 
-void	coder_workflow(t_coder *coder)
+void	coder_workflow(void *arg)
 {
+	t_coder *coder = arg;
 	coder_hand(coder);
 	coder_compiling(coder);
 	coder_debugging(coder);

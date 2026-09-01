@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:15:01 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/08/30 19:20:11 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/01 14:43:50 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,27 +15,19 @@
 #include <stdio.h>
 #include <time.h>
 
-// typedef struct s_dongle{
-//     unsigned int dongle_id;
-//     unsigned int used;
-//     long released_time;
-//     t_parameter parameter;
-//     pthread_mutex_t mutex;
-//     pthread_cond_t condition;
-// } t_dongle;
 
-int	dongle_take(t_dongle *dongle)
+int	dongle_take(t_dongle *dongle, t_coder *coder)
 {
 	long			remaining;
 	struct timespec	timeout;
 
 	pthread_mutex_lock(&dongle->mutex);
-	while (dongle->used || codexion_clock()
+	while (dongle->holder || codexion_clock()
 		- dongle->released_time < dongle->parameter.dongle_cooldown)
 	{
 		remaining = dongle->parameter.dongle_cooldown = (codexion_clock()
 				- dongle->released_time);
-		if (dongle->used || remaining <= 0)
+		if (dongle->holder || remaining <= 0)
 			pthread_cond_wait(&dongle->condition, &dongle->mutex);
 		else
 		{
@@ -44,15 +36,21 @@ int	dongle_take(t_dongle *dongle)
 					&timeout);
 		}
 	}
-	dongle->used = 1;
+	dongle->holder = coder;
 	pthread_mutex_unlock(&dongle->mutex);
 	return (1);
 }
 
-void	dongle_release(t_dongle *dongle)
+void	dongle_release(t_dongle *dongle, t_coder *coder)
 {
 	pthread_mutex_lock(&dongle->mutex);
-	dongle->used = 0;
+	if (dongle->holder == coder)
+	{
+		dongle->holder = NULL;
+		dongle->released_time = codexion_clock();
+		pthread_cond_broadcast(&dongle->condition);
+	}
+	dongle->holder = NULL;
 	dongle->released_time = codexion_clock();
 	pthread_cond_broadcast(&dongle->condition);
 	pthread_mutex_unlock(&dongle->mutex);
