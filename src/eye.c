@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:13:36 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/08/30 19:20:24 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/01 18:47:31 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,5 +27,26 @@ void	is_he_burnedout(t_coder *coder)
 		write(1, coder_id_char, strlen(coder_id_char));
 		write(1, " burned out\n", strlen(" burned out\n"));
 		exit(EXIT_FAILURE);
+	}
+}
+
+void eying_on(void *arg)
+{
+	t_session *session;
+	int	i;
+	int	N;
+
+	session = (t_session *)arg;
+	N = session->parameter.number_of_coders;
+
+	while (1)
+	{
+		i = 0;
+		while (i < N)
+		{
+			is_he_burnedout(&session->coders[i]);
+			i++;
+		}
+		usleep(1000);
 	}
 }

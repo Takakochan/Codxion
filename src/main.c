@@ -6,13 +6,14 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:14:41 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/01 18:17:26 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/01 19:23:54 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-void start_session(t_session *session)
+
+void start_end_session(t_session *session)
 {
 	int i;
 	int N;
@@ -22,16 +23,40 @@ void start_session(t_session *session)
 	while (i < N)
 	{
 		pthread_create(&session->coders[i].thread, NULL, coder_workflow, &session->coders[i]);
-		pthread_create(&session->coders[i].thread, NULL, )
 		i++;
 	}
+	pthread_create(&session->coders[i].thread, NULL, eying_on, &session);
 	i = 0;
 	while (i < N)
 	{
 		pthread_join(session->coders[i].thread, NULL);
 		i++;
 	}
+
+	if (session->dongles)
+	{
+		i = 0;
+		while (i < N)
+		{
+			pthread_mutex_destroy(&session->dongles[i].mutex);
+			pthread_cond_destroy(&session->dongles[i].condition);
+			i++;
+		}
+		free (session->dongles);
+	}
+	if (session->coders)
+	{
+		i = 0;
+		while(i < N)
+		{
+			pthread_cond_destroy(&session->coders[i].condition);
+			i++;
+		}
+		free(session->coders);
+	}
+	free(session);
 }
+
 
 
 int	main(int argc, char **argv)
@@ -43,6 +68,7 @@ int	main(int argc, char **argv)
 	session = init_session(params);
 	if (!session)
 		return (1);
+	start_end_session(session);
 
 
 }

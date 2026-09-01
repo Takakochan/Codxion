@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:14:50 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/01 18:02:00 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/01 19:18:01 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,9 +31,8 @@ typedef struct s_parameter
 	char					*scheduler;
 }							t_parameter;
 
-
-typedef struct s_coder t_coder;
-typedef struct s_queue t_queue;
+typedef struct s_coder		t_coder;
+typedef struct s_queue		t_queue;
 
 typedef struct s_request
 {
@@ -48,7 +47,6 @@ typedef struct s_queue
 	t_request				items[2];
 	int						size;
 }							t_queue;
-
 
 typedef struct s_dongle
 {
@@ -82,10 +80,9 @@ typedef struct s_session
 	long					start_time;
 }							t_session;
 
-
 /*main*/
-
 int							main(int argc, char **argv);
+void						start_end_session(t_session *session);
 
 /*parser*/
 int							error_num_parameter(int argc);
@@ -118,14 +115,15 @@ void						coder_workflow(void *arg);
 
 /* eye (monitor)*/
 void						is_he_burnedout(t_coder *coder);
+void						eying_on(void *arg);
 
 /* heap */
-int queue_avoid_double(t_queue *que, t_coder *coder);
-void	enqueue(t_queue *que, t_coder *coder, long timestamp);
-void	dequeue(t_queue *que, int idx);
-int pick_next(t_queue *que, const char *schedular);
-void grant_net(t_dongle *dongle);
-void queue_remove(t_queue *que, t_coder *coder);
-
+int							queue_avoid_double(t_queue *que, t_coder *coder);
+void						enqueue(t_queue *que, t_coder *coder,
+								long timestamp);
+void						dequeue(t_queue *que, int idx);
+int							pick_next(t_queue *que, const char *schedular);
+void						grant_net(t_dongle *dongle);
+void						queue_remove(t_queue *que, t_coder *coder);
 
 #endif
