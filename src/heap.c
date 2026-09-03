@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 16:09:57 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/01 18:30:04 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/03 14:05:19 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,15 +69,8 @@ int pick_next(t_queue *que, const char *schedular)
 
 }
 
-void swapque(t_queue *a, t_queue *b)
-{
-	t_queue *temp;
-	temp = a;
-	b = a;
-	a = temp;
-}
 
-void grant_net(t_dongle *dongle)
+void grant_next(t_dongle *dongle)
 {
 	int idx;
 
@@ -102,3 +95,4 @@ void queue_remove(t_queue *que, t_coder *coder)
 	if (idx >= 0)
 		dequeue(que, idx);
 }
+

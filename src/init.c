@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/28 13:49:03 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/08/31 18:25:12 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/03 14:17:36 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ t_coder	*init_coders(t_session *session, int N)
 		coders[i].coder_id = i;
 		coders[i].left_hand = &session->dongles[i];
 		coders[i].right_hand = &session->dongles[(i + 1) % N];
-		coders[i].last_compiled = 0;
+		coders[i].last_compiled = session->start_time;
 		coders[i].compile_count = 0;
 		coders[i].session = session;
 	}

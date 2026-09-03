@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:15:01 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/01 14:43:50 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/03 14:37:00 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,10 +22,11 @@ int	dongle_take(t_dongle *dongle, t_coder *coder)
 	struct timespec	timeout;
 
 	pthread_mutex_lock(&dongle->mutex);
-	while (dongle->holder || codexion_clock()
-		- dongle->released_time < dongle->parameter.dongle_cooldown)
+	enqueue(&dongle->que, coder, codexion_clock());
+	grant_next(dongle);
+	while (dongle->holder != coder)
 	{
-		remaining = dongle->parameter.dongle_cooldown = (codexion_clock()
+		remaining = dongle->parameter.dongle_cooldown - (codexion_clock()
 				- dongle->released_time);
 		if (dongle->holder || remaining <= 0)
 			pthread_cond_wait(&dongle->condition, &dongle->mutex);
@@ -50,8 +51,6 @@ void	dongle_release(t_dongle *dongle, t_coder *coder)
 		dongle->released_time = codexion_clock();
 		pthread_cond_broadcast(&dongle->condition);
 	}
-	dongle->holder = NULL;
-	dongle->released_time = codexion_clock();
-	pthread_cond_broadcast(&dongle->condition);
+
 	pthread_mutex_unlock(&dongle->mutex);
 }

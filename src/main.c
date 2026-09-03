@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:14:41 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/01 19:23:54 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/03 14:33:09 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ void start_end_session(t_session *session)
 {
 	int i;
 	int N;
+	pthread_t monitor_thread;
 
 	N = session->parameter.number_of_coders;
 	i = 0;
@@ -25,7 +26,7 @@ void start_end_session(t_session *session)
 		pthread_create(&session->coders[i].thread, NULL, coder_workflow, &session->coders[i]);
 		i++;
 	}
-	pthread_create(&session->coders[i].thread, NULL, eying_on, &session);
+	pthread_create(&monitor_thread, NULL, eying_on, session);
 	i = 0;
 	while (i < N)
 	{
@@ -70,6 +71,6 @@ int	main(int argc, char **argv)
 		return (1);
 	start_end_session(session);
 
-
+	return (0);
 }
 

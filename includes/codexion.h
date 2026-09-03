@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:14:50 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/01 19:18:01 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/03 13:34:12 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,11 +111,11 @@ int							dongle_take(t_dongle *dongle, t_coder *coder);
 void						dongle_release(t_dongle *dongle, t_coder *coder);
 
 /* coder */
-void						coder_workflow(void *arg);
+void						*coder_workflow(void *arg);
 
 /* eye (monitor)*/
 void						is_he_burnedout(t_coder *coder);
-void						eying_on(void *arg);
+void						*eying_on(void *arg);
 
 /* heap */
 int							queue_avoid_double(t_queue *que, t_coder *coder);
@@ -123,7 +123,7 @@ void						enqueue(t_queue *que, t_coder *coder,
 								long timestamp);
 void						dequeue(t_queue *que, int idx);
 int							pick_next(t_queue *que, const char *schedular);
-void						grant_net(t_dongle *dongle);
+void						grant_next(t_dongle *dongle);
 void						queue_remove(t_queue *que, t_coder *coder);
 
 #endif

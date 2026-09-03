@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:13:36 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/01 18:47:31 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/03 17:22:34 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,9 @@ void	is_he_burnedout(t_coder *coder)
 	char	*timestamp;
 	char	*coder_id_char;
 
-	if (codexion_clock()
-		- coder->last_compiled >= coder->session->parameter.time_to_burnout)
+
+
+	if (codexion_clock() - coder->last_compiled >= coder->last_compiled)
 	{
 		timestamp = ft_itoa(codexion_clock() - coder->session->start_time);
 		coder_id_char = ft_itoa(coder->coder_id);
@@ -30,7 +31,28 @@ void	is_he_burnedout(t_coder *coder)
 	}
 }
 
-void eying_on(void *arg)
+int is_all_coder_done(t_session *session)
+{
+	int i;
+	int count;
+	i = 0;
+	count = 0;
+	while(i < session->parameter.number_of_coders)
+	{
+		// printf("%d\n", i);
+		if(session->coders[i].compile_count == session->parameter.number_of_compiles_required)
+		{
+			count ++;
+			// printf("%d", session->coders[i].compile_count);
+		}
+		i++;
+	}
+	if (count == session->parameter.number_of_coders)
+		return (1);
+	return (0);
+}
+
+void *eying_on(void *arg)
 {
 	t_session *session;
 	int	i;
@@ -47,6 +69,9 @@ void eying_on(void *arg)
 			is_he_burnedout(&session->coders[i]);
 			i++;
 		}
+		if (is_all_coder_done(session))
+				break;
 		usleep(1000);
 	}
+	return (NULL);
 }
