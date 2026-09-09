@@ -6,13 +6,19 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 16:09:57 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/03 14:05:19 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/09 16:38:37 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-
+/**
+ * @brief Checks if there are the same coder in the queue
+ *
+ * @param que
+ * @param coder
+ * @return int. if not minus value
+ */
 int queue_avoid_double(t_queue *que, t_coder *coder)
 {
 	int i =0;
@@ -25,18 +31,26 @@ int queue_avoid_double(t_queue *que, t_coder *coder)
 	return (-1);
 }
 
-
-void	enqueue(t_queue *que, t_coder *coder, long timestamp)
+/**
+ * @brief 
+ *
+ * @param que
+ * @param coder
+ * @param timestamp
+ * @return int
+ */
+int	enqueue(t_queue *que, t_coder *coder, long timestamp)
 {
-	if (que->size >= 2 || queue_avoid_double(que, coder) >= 0)
-		return ;
+	if (queue_avoid_double(que, coder) >= 0)
+		return (1);
+	if (que->size >= 2)
+		return (0);
 	que->items[que->size].coder = coder;
 	que->items[que->size].requested_at = timestamp;
 	que->items[que->size].last_compiled = coder->last_compiled;
-	que->items[que->size].compile_count = coder->compile_count;
 	que->size++;
+	return (1);
 }
-
 void	dequeue(t_queue *que, int idx)
 {
 	while (idx + 1 < que->size)

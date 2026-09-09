@@ -9,23 +9,20 @@ RESET :=\033[0;35m
 NAME	=	codexion
 
 #++++++++++COMPILER+++++++++++
-CC	= 	cc
-CFLAGS	 =	-Wall -Wextra -pthread -I includes
-RM	:=	rm -f
-RMDIR := rm -rf
-SRCS 	:= 	src/main.c src/parser.c src/init.c src/utils.c src/coder.c src/dongle.c src/eye.c src/heap.c
-OBJS := $(SRCS:.c=.o)
+CC      := cc
+CFLAGS  := -Wall -Wextra -g -pthread -I includes
+RM      := rm -f
+RMDIR   := rm -rf
+SRCS    := src/main.c src/parser.c src/init.c src/utils.c src/coder.c src/dongle.c src/eye.c src/heap.c
+OBJS    := $(SRCS:.c=.o)
 
 #++++++++++RULES+++++++++++
 .PHONY: all clean fclean re help
 
-al: $(NAME)
+all: $(NAME)
 
 $(NAME): $(OBJS)
-	$(CC)	$(CFLAGS) $(OBJS) -o $(NAME)
-
-%.o: %.cc
-	$(CC)	$(CFLAG)	-c $<	-o	$@
+	$(CC) $(CFLAGS) $(OBJS) -o $(NAME)
 
 
 #++++++++++CLEAN+++++++++++

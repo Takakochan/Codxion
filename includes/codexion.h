@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:14:50 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/03 13:34:12 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/09 18:51:57 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,10 @@ typedef struct s_session
 	t_dongle				*dongles;
 	t_coder					*coders;
 	long					start_time;
+	pthread_mutex_t			session_mutex;
+	pthread_mutex_t			log_mutex;
 }							t_session;
+
 
 /*main*/
 int							main(int argc, char **argv);
@@ -105,6 +108,7 @@ void						print_log(t_coder *coder, char *str);
 void						*ft_calloc(size_t nmemb, size_t size);
 int							numlen(long n);
 char						*ft_itoa(long num);
+char						tab_space(int coder_id);
 
 /* dongle */
 int							dongle_take(t_dongle *dongle, t_coder *coder);
@@ -119,7 +123,7 @@ void						*eying_on(void *arg);
 
 /* heap */
 int							queue_avoid_double(t_queue *que, t_coder *coder);
-void						enqueue(t_queue *que, t_coder *coder,
+int						enqueue(t_queue *que, t_coder *coder,
 								long timestamp);
 void						dequeue(t_queue *que, int idx);
 int							pick_next(t_queue *que, const char *schedular);

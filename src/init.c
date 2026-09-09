@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/28 13:49:03 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/03 14:17:36 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/09 18:54:27 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,5 +64,7 @@ t_session	*init_session(t_parameter params)
 	if (!session->dongles)
 		return (free(session), NULL);
 	session->coders = init_coders(session, N);
+	pthread_mutex_init(&session->session_mutex, NULL);
+	pthread_mutex_init(&session->log_mutex, NULL);
 	return (session);
 }

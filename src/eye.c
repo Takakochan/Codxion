@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:13:36 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/03 17:22:34 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/09 20:41:19 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,19 +16,27 @@ void	is_he_burnedout(t_coder *coder)
 {
 	char	*timestamp;
 	char	*coder_id_char;
+	int	is_burned;
+	is_burned = 0;
 
+	pthread_mutex_lock(&coder->session->session_mutex);
+	if (codexion_clock() - coder->last_compiled >= coder->session->parameter.time_to_burnout)
+		is_burned = 1;
+	pthread_mutex_unlock(&coder->session->session_mutex);
 
-
-	if (codexion_clock() - coder->last_compiled >= coder->last_compiled)
+	if (is_burned)
 	{
+		pthread_mutex_lock(&coder->session->log_mutex);
 		timestamp = ft_itoa(codexion_clock() - coder->session->start_time);
-		coder_id_char = ft_itoa(coder->coder_id);
+		coder_id_char = ft_itoa(coder->coder_id + 1);
 		write(1, timestamp, strlen(timestamp));
 		write(1, " ", 1);
 		write(1, coder_id_char, strlen(coder_id_char));
 		write(1, " burned out\n", strlen(" burned out\n"));
+		pthread_mutex_unlock(&coder->session->log_mutex);
 		exit(EXIT_FAILURE);
 	}
+
 }
 
 int is_all_coder_done(t_session *session)
@@ -37,16 +45,14 @@ int is_all_coder_done(t_session *session)
 	int count;
 	i = 0;
 	count = 0;
+	pthread_mutex_lock(&session->session_mutex);
 	while(i < session->parameter.number_of_coders)
 	{
-		// printf("%d\n", i);
 		if(session->coders[i].compile_count == session->parameter.number_of_compiles_required)
-		{
 			count ++;
-			// printf("%d", session->coders[i].compile_count);
-		}
 		i++;
 	}
+	pthread_mutex_unlock(&session->session_mutex);
 	if (count == session->parameter.number_of_coders)
 		return (1);
 	return (0);
@@ -70,7 +76,12 @@ void *eying_on(void *arg)
 			i++;
 		}
 		if (is_all_coder_done(session))
-				break;
+		{
+				pthread_mutex_lock(&session->log_mutex);
+				printf("finished");
+				pthread_mutex_unlock(&session->log_mutex);
+				exit(EXIT_FAILURE);
+		}
 		usleep(1000);
 	}
 	return (NULL);

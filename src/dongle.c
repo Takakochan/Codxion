@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:15:01 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/03 14:37:00 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/09 16:35:09 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,29 +15,39 @@
 #include <stdio.h>
 #include <time.h>
 
-
-int	dongle_take(t_dongle *dongle, t_coder *coder)
+/**
+ * @brief 
+ *
+ * @param dongle
+ */
+static void	dongle_wait(t_dongle *dongle)
 {
 	long			remaining;
 	struct timespec	timeout;
 
+	if (dongle->holder)
+		return ((void)pthread_cond_wait(&dongle->condition, &dongle->mutex));
+	remaining = dongle->parameter.dongle_cooldown
+		- (codexion_clock() - dongle->released_time);
+	if (remaining < 1)
+		remaining = 1;
+	ms_to_timespec(codexion_clock() + remaining, &timeout);
+	pthread_cond_timedwait(&dongle->condition, &dongle->mutex, &timeout);
+}
+
+int	dongle_take(t_dongle *dongle, t_coder *coder)
+{
 	pthread_mutex_lock(&dongle->mutex);
-	enqueue(&dongle->que, coder, codexion_clock());
+	if (dongle->holder == coder)
+		return (pthread_mutex_unlock(&dongle->mutex), 1);
+	if (!enqueue(&dongle->que, coder, codexion_clock()))
+		return (pthread_mutex_unlock(&dongle->mutex), 0);
 	grant_next(dongle);
 	while (dongle->holder != coder)
 	{
-		remaining = dongle->parameter.dongle_cooldown - (codexion_clock()
-				- dongle->released_time);
-		if (dongle->holder || remaining <= 0)
-			pthread_cond_wait(&dongle->condition, &dongle->mutex);
-		else
-		{
-			ms_to_timespec(codexion_clock() + remaining, &timeout);
-			pthread_cond_timedwait(&dongle->condition, &dongle->mutex,
-					&timeout);
-		}
+		dongle_wait(dongle);
+		grant_next(dongle);
 	}
-	dongle->holder = coder;
 	pthread_mutex_unlock(&dongle->mutex);
 	return (1);
 }

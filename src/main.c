@@ -6,12 +6,11 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:14:41 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/03 14:33:09 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/09 19:27:46 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
-
 
 void start_end_session(t_session *session)
 {
@@ -46,15 +45,7 @@ void start_end_session(t_session *session)
 		free (session->dongles);
 	}
 	if (session->coders)
-	{
-		i = 0;
-		while(i < N)
-		{
-			pthread_cond_destroy(&session->coders[i].condition);
-			i++;
-		}
 		free(session->coders);
-	}
 	free(session);
 }
 

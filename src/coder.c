@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:23:28 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/03 15:48:27 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/09 19:24:38 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,10 +37,12 @@ static void	coder_hand(t_coder *coder)
 
 static void	coder_compiling(t_coder *coder)
 {
-	coder->compile_count ++;
 	print_log(coder, " is compiling");
-	usleep(coder->session->parameter.time_to_compile * 1000);
+	pthread_mutex_lock(&coder->session->session_mutex);
 	coder->last_compiled = codexion_clock();
+	coder->compile_count ++;
+	pthread_mutex_unlock(&coder->session->session_mutex);
+	usleep(coder->session->parameter.time_to_compile * 1000);
 }
 
 static void	coder_dongle_release(t_coder *coder)
@@ -64,14 +66,13 @@ static void	coder_refactoring(t_coder *coder)
 void	*coder_workflow(void *arg)
 {
 	t_coder *coder = arg;
-	while ((int)coder->compile_count < coder->session->parameter.number_of_compiles_required)
+	while (1)
 	{
 		coder_hand(coder);
 		coder_compiling(coder);
 		coder_dongle_release(coder);
 		coder_debugging(coder);
 		coder_refactoring(coder);
-		is_he_burnedout(coder);
 	}
 	return (NULL);
 }

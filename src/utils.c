@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:14:11 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/08/30 19:20:43 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/09 19:25:40 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,9 +32,14 @@ void	ms_to_timespec(long ms, struct timespec *ts)
 void	print_log(t_coder *coder, char *str)
 {
 	long	timestamp;
+	int total_space;
 
+	pthread_mutex_lock(&coder->session->log_mutex);
+	total_space = coder->coder_id * 16;
 	timestamp = codexion_clock() - coder->session->start_time;
-	printf("%ld %u %s\n", timestamp, coder->coder_id, str);
+	printf("%*s", total_space, "");
+	printf("%ld %u %s\n", timestamp, coder->coder_id + 1, str);
+	pthread_mutex_unlock(&coder->session->log_mutex);
 }
 
 void	*ft_calloc(size_t nmemb, size_t size)
