@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 16:09:57 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/09 16:38:37 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/10 19:07:29 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ int queue_avoid_double(t_queue *que, t_coder *coder)
 }
 
 /**
- * @brief 
+ * @brief
  *
  * @param que
  * @param coder

@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:23:28 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/09 19:24:38 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/10 20:12:01 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,11 +38,10 @@ static void	coder_hand(t_coder *coder)
 static void	coder_compiling(t_coder *coder)
 {
 	print_log(coder, " is compiling");
+	usleep(coder->session->parameter.time_to_compile * 1000);
 	pthread_mutex_lock(&coder->session->session_mutex);
 	coder->last_compiled = codexion_clock();
-	coder->compile_count ++;
 	pthread_mutex_unlock(&coder->session->session_mutex);
-	usleep(coder->session->parameter.time_to_compile * 1000);
 }
 
 static void	coder_dongle_release(t_coder *coder)
@@ -60,13 +59,16 @@ static void	coder_debugging(t_coder *coder)
 static void	coder_refactoring(t_coder *coder)
 {
 	print_log(coder, " is refactoring");
+	pthread_mutex_lock(&coder->session->session_mutex);
+	coder->compile_count ++;
+	pthread_mutex_unlock(&coder->session->session_mutex);
 	usleep(coder->session->parameter.time_to_refactor * 1000);
 }
 
 void	*coder_workflow(void *arg)
 {
 	t_coder *coder = arg;
-	while (1)
+	while (coder->compile_count < coder->session->parameter.number_of_compiles_required && !coder->session->someone_died)
 	{
 		coder_hand(coder);
 		coder_compiling(coder);

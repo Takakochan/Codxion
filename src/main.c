@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:14:41 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/09 19:27:46 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/10 20:24:10 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ void start_end_session(t_session *session)
 	int N;
 	pthread_t monitor_thread;
 
+	pthread_create(&monitor_thread, NULL, eying_on, session);
 	N = session->parameter.number_of_coders;
 	i = 0;
 	while (i < N)
@@ -25,14 +26,14 @@ void start_end_session(t_session *session)
 		pthread_create(&session->coders[i].thread, NULL, coder_workflow, &session->coders[i]);
 		i++;
 	}
-	pthread_create(&monitor_thread, NULL, eying_on, session);
 	i = 0;
 	while (i < N)
 	{
 		pthread_join(session->coders[i].thread, NULL);
 		i++;
 	}
-
+	if (session->someone_died)
+		burned_out(&session->coders[0]);
 	if (session->dongles)
 	{
 		i = 0;

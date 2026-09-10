@@ -6,37 +6,22 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:13:36 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/09 20:41:19 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/10 20:27:48 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-void	is_he_burnedout(t_coder *coder)
+int	is_he_burnedout(t_coder *coder)
 {
-	char	*timestamp;
-	char	*coder_id_char;
-	int	is_burned;
-	is_burned = 0;
-
 	pthread_mutex_lock(&coder->session->session_mutex);
 	if (codexion_clock() - coder->last_compiled >= coder->session->parameter.time_to_burnout)
-		is_burned = 1;
+		coder->session->someone_died = 1;
 	pthread_mutex_unlock(&coder->session->session_mutex);
+	if (coder->session->someone_died)
+		return (1);
 
-	if (is_burned)
-	{
-		pthread_mutex_lock(&coder->session->log_mutex);
-		timestamp = ft_itoa(codexion_clock() - coder->session->start_time);
-		coder_id_char = ft_itoa(coder->coder_id + 1);
-		write(1, timestamp, strlen(timestamp));
-		write(1, " ", 1);
-		write(1, coder_id_char, strlen(coder_id_char));
-		write(1, " burned out\n", strlen(" burned out\n"));
-		pthread_mutex_unlock(&coder->session->log_mutex);
-		exit(EXIT_FAILURE);
-	}
-
+	return (0);
 }
 
 int is_all_coder_done(t_session *session)
@@ -58,6 +43,21 @@ int is_all_coder_done(t_session *session)
 	return (0);
 }
 
+void burned_out(t_coder *coder)
+{
+	char	*timestamp;
+	char	*coder_id_char;
+
+	pthread_mutex_lock(&coder->session->log_mutex);
+	timestamp = ft_itoa(codexion_clock() - coder->session->start_time);
+	coder_id_char = ft_itoa(coder->coder_id + 1);
+	write(1, timestamp, strlen(timestamp));
+	write(1, " ", 1);
+	write(1, coder_id_char, strlen(coder_id_char));
+	write(1, " burned out\n", strlen(" burned out\n"));
+	pthread_mutex_unlock(&coder->session->log_mutex);
+}
+
 void *eying_on(void *arg)
 {
 	t_session *session;
@@ -72,15 +72,18 @@ void *eying_on(void *arg)
 		i = 0;
 		while (i < N)
 		{
-			is_he_burnedout(&session->coders[i]);
+			if (is_he_burnedout(&session->coders[i]))
+				return (NULL);
 			i++;
 		}
 		if (is_all_coder_done(session))
 		{
 				pthread_mutex_lock(&session->log_mutex);
-				printf("finished");
+				printf("finished\n");
 				pthread_mutex_unlock(&session->log_mutex);
-				exit(EXIT_FAILURE);
+				return (NULL);
+				// exit(1);
+				// break;
 		}
 		usleep(1000);
 	}

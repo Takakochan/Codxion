@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:14:50 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/09 18:51:57 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/10 19:40:45 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,7 @@ typedef struct s_session
 	long					start_time;
 	pthread_mutex_t			session_mutex;
 	pthread_mutex_t			log_mutex;
+	int 					someone_died;
 }							t_session;
 
 
@@ -118,8 +119,9 @@ void						dongle_release(t_dongle *dongle, t_coder *coder);
 void						*coder_workflow(void *arg);
 
 /* eye (monitor)*/
-void						is_he_burnedout(t_coder *coder);
+int						is_he_burnedout(t_coder *coder);
 void						*eying_on(void *arg);
+void 					burned_out(t_coder *coder);
 
 /* heap */
 int							queue_avoid_double(t_queue *que, t_coder *coder);
