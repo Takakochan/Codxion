@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:15:01 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/12 13:00:28 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/12 15:57:07 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ static void	dongle_wait(t_dongle *dongle)
 
 	// --- ケースA: 他のコーダーがドングルを所有している場合 ---
 	// 所有者が解放（シグナル）するのを待ちつつ、10msごとに起きて死亡確認する
-	while (dongle->holder == NULL)
+	while (dongle->holder != NULL)
 	{
 		ms_to_timespec(codexion_clock() + 10, &timeout);
 		pthread_cond_timedwait(&dongle->condition, &dongle->mutex, &timeout);
@@ -92,11 +92,9 @@ static void	dongle_wait(t_dongle *dongle)
 
 int	dongle_take(t_dongle *dongle, t_coder *coder)
 {
-	printf("dongle holder is '%d'\n", dongle->holder);
 	pthread_mutex_lock(&dongle->mutex);
 	if (dongle->holder)
 	{
-		printf("here\n");
 		dongle_wait(dongle);
 		return (pthread_mutex_unlock(&dongle->mutex), 0);
 	}
@@ -117,10 +115,7 @@ void	dongle_release(t_dongle *dongle, t_coder *coder)
 	pthread_mutex_lock(&dongle->mutex);
 	if (dongle->holder == coder)
 	{
-		printf("coder is %d\n", coder);
-		printf("before NULL %d\n", dongle->holder);
 		dongle->holder = NULL;
-		printf("after NULL %d\n", dongle->holder);
 		dongle->released_time = codexion_clock();
 		pthread_cond_broadcast(&dongle->condition);
 	}

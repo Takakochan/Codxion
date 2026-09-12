@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:14:50 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/12 12:47:18 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/12 14:03:05 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,6 +121,7 @@ void						dongle_release(t_dongle *dongle, t_coder *coder);
 void						*coder_workflow(void *arg);
 
 /* eye (monitor)*/
+int						is_all_coder_done(t_session *session);
 int						is_he_burnedout(t_coder *coder);
 void						*eying_on(void *arg);
 void 					burned_out(t_coder *coder);

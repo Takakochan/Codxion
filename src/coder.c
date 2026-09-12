@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:23:28 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/12 13:13:04 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/12 16:47:33 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,11 +45,11 @@ static int	coder_hand(t_coder *coder)
 
 static void	coder_compiling(t_coder *coder)
 {
-	print_log(coder, " is compiling");
-	usleep(coder->session->parameter.time_to_compile * 1000);
 	pthread_mutex_lock(&coder->session->session_mutex);
 	coder->last_compiled = codexion_clock();
 	pthread_mutex_unlock(&coder->session->session_mutex);
+	print_log(coder, " is compiling");
+	usleep(coder->session->parameter.time_to_compile * 1000);
 }
 
 static void	coder_dongle_release(t_coder *coder)
@@ -66,19 +66,35 @@ static void	coder_debugging(t_coder *coder)
 
 static void	coder_refactoring(t_coder *coder)
 {
-	print_log(coder, " is refactoring");
 	pthread_mutex_lock(&coder->session->session_mutex);
 	coder->compile_count ++;
 	pthread_mutex_unlock(&coder->session->session_mutex);
 	usleep(coder->session->parameter.time_to_refactor * 1000);
 }
 
+
+int	should_coder_stop(t_coder *coder)
+{
+	int	stop;
+
+	pthread_mutex_lock(&coder->session->session_mutex);
+	if (coder->compile_count >= coder->session->parameter.number_of_compiles_required ||
+		coder->session->someone_died == 1)
+		stop = 1;
+	else
+		stop = 0;
+
+	pthread_mutex_unlock(&coder->session->session_mutex);
+	return (stop);
+}
+
 void	*coder_workflow(void *arg)
 {
 	t_coder *coder = arg;
-	while (coder->compile_count < coder->session->parameter.number_of_compiles_required && !coder->session->someone_died)
+	while (!should_coder_stop(coder))
 	{
-		coder_hand(coder);
+		if (!coder_hand(coder))
+			continue;
 		coder_compiling(coder);
 		coder_dongle_release(coder);
 		coder_debugging(coder);

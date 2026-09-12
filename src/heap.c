@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 16:09:57 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/12 12:54:43 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/12 13:26:49 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,6 @@ int	enqueue(t_queue *que, t_coder *coder, long timestamp)
 		return (1);
 	else if (que->size >= 2)
 		return (0);
-	printf("in enqueue the coder is %d\n", coder);
 	que->items[que->size].coder = coder;
 	que->items[que->size].requested_at = timestamp;
 	que->items[que->size].last_compiled = coder->last_compiled;
@@ -87,7 +86,6 @@ int pick_next(t_queue *que, const char *schedular)
 void grant_next(t_dongle *dongle)
 {
 	int idx;
-	printf("90\n");
 	// if dongle is taken or queue is empty
 	if (dongle->holder || dongle->que.size == 0)
 		return ;
@@ -98,9 +96,7 @@ void grant_next(t_dongle *dongle)
 	//if the queue is empty do nothing
 	if (idx < 0)
 		return ;
-	printf("dongle->que.items[idx].coder is %d\n", dongle->que.items[idx].coder);
 	dongle->holder = dongle->que.items[idx].coder;
-	printf("AFTER the dainyu %d\n", dongle->holder);
 	dequeue(&dongle->que, idx);
 	pthread_cond_broadcast(&dongle->condition);
 }

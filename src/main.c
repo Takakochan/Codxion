@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:14:41 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/10 20:24:10 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/12 16:27:12 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,8 +32,7 @@ void start_end_session(t_session *session)
 		pthread_join(session->coders[i].thread, NULL);
 		i++;
 	}
-	if (session->someone_died)
-		burned_out(&session->coders[0]);
+	pthread_join(monitor_thread, NULL);
 	if (session->dongles)
 	{
 		i = 0;
@@ -45,8 +44,10 @@ void start_end_session(t_session *session)
 		}
 		free (session->dongles);
 	}
+
 	if (session->coders)
 		free(session->coders);
+
 	free(session);
 }
 
