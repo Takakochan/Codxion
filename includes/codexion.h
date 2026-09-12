@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:14:50 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/10 19:40:45 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/12 12:47:18 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ typedef struct s_queue
 	int						size;
 }							t_queue;
 
+typedef struct s_session	t_session;
 typedef struct s_dongle
 {
 	unsigned int			dongle_id;
@@ -57,9 +58,10 @@ typedef struct s_dongle
 	pthread_mutex_t			mutex;
 	pthread_cond_t			condition;
 	t_queue					que;
+	t_session				*session;
 }							t_dongle;
 
-typedef struct s_session	t_session;
+
 typedef struct s_coder
 {
 	unsigned int			coder_id;
@@ -98,7 +100,7 @@ int							parser_error_handler(int argc, char **argv);
 t_parameter					parser_init_param(int argc, char **argv);
 
 /*init*/
-t_dongle					*init_dongles(t_parameter params, int N);
+t_dongle					*init_dongles(t_parameter params, t_session *session, int N);
 t_coder						*init_coders(t_session *session, int N);
 t_session					*init_session(t_parameter params);
 
@@ -133,3 +135,4 @@ void						grant_next(t_dongle *dongle);
 void						queue_remove(t_queue *que, t_coder *coder);
 
 #endif
+

@@ -6,33 +6,41 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:23:28 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/10 20:12:01 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/12 13:13:04 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-static void	coder_hand(t_coder *coder)
+static int	coder_hand(t_coder *coder)
 {
-	if (coder->session->parameter.number_of_coders == 1)
-	{
-		dongle_take(coder->left_hand, coder);
-		print_log(coder, " has taken a dongle");
-	}
+	int first;
+	int	second;
+
 	if (coder->left_hand->dongle_id < coder->right_hand->dongle_id)
 	{
-		dongle_take(coder->left_hand, coder);
-		print_log(coder, " has taken a dongle");
-		dongle_take(coder->right_hand, coder);
-		print_log(coder, " has taken a dongle");
+		first = dongle_take(coder->left_hand, coder);
+		if (first)
+			print_log(coder, " has taken a dongle");
+		second = dongle_take(coder->right_hand, coder);
+		if (second)
+			print_log(coder, " has taken a dongle");
 	}
 	else
 	{
-		dongle_take(coder->right_hand, coder);
-		print_log(coder, " has taken a dongle");
-		dongle_take(coder->left_hand, coder);
-		print_log(coder, " has taken a dongle");
+		first = dongle_take(coder->right_hand, coder);
+		if (first)
+			print_log(coder, " has taken a dongle");
+		second = dongle_take(coder->left_hand, coder);
+		if (second)
+			print_log(coder, " has taken a dongle");
 	}
+	if (first && second)
+		return (1);
+	dongle_release(coder->left_hand, coder);
+	dongle_release(coder->right_hand, coder);
+	return (0);
+
 }
 
 static void	coder_compiling(t_coder *coder)

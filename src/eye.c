@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:13:36 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/10 20:27:48 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/11 14:47:13 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,13 @@ int	is_he_burnedout(t_coder *coder)
 	pthread_mutex_lock(&coder->session->session_mutex);
 	if (codexion_clock() - coder->last_compiled >= coder->session->parameter.time_to_burnout)
 		coder->session->someone_died = 1;
-	pthread_mutex_unlock(&coder->session->session_mutex);
-	if (coder->session->someone_died)
-		return (1);
 
+	if (coder->session->someone_died)
+	{
+		pthread_mutex_unlock(&coder->session->session_mutex);
+		return (1);
+	}
+	pthread_mutex_unlock(&coder->session->session_mutex);
 	return (0);
 }
 

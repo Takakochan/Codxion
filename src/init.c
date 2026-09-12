@@ -6,13 +6,13 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/28 13:49:03 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/10 19:16:58 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/12 12:47:33 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-t_dongle	*init_dongles(t_parameter params, int N)
+t_dongle	*init_dongles(t_parameter params, t_session *session, int N)
 {
 
 	t_dongle	*dongles;
@@ -26,7 +26,8 @@ t_dongle	*init_dongles(t_parameter params, int N)
 		dongles[i].holder = NULL;
 		dongles[i].parameter = params;
 		dongles[i].que.size = 0;
-		pthread_mutex_init(&dongles[i].mutex, NULL); //explore!!!
+		dongles[i].session = session;
+		pthread_mutex_init(&dongles[i].mutex, NULL);
 		pthread_cond_init(&dongles[i].condition, NULL);
 	}
 	return (dongles);
@@ -60,7 +61,7 @@ t_session	*init_session(t_parameter params)
 		return (NULL);
 	session->parameter = params;
 	session->start_time = codexion_clock();
-	session->dongles = init_dongles(params, N);
+	session->dongles = init_dongles(params, session, N);
 	if (!session->dongles)
 		return (free(session), NULL);
 	session->coders = init_coders(session, N);
