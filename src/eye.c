@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:13:36 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/12 16:42:13 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/16 17:55:21 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,15 @@
 int	is_he_burnedout(t_coder *coder)
 {
 	pthread_mutex_lock(&coder->session->session_mutex);
-	if (codexion_clock() - coder->last_compiled >= coder->session->parameter.time_to_burnout)
-		coder->session->someone_died = 1;
-
-	if (coder->session->someone_died == 1)
+	if (coder->session->someone_died)
 	{
+		pthread_mutex_unlock(&coder->session->session_mutex);
+		return (1);
+	}
+	if (codexion_clock()
+		- coder->last_compiled >= coder->session->parameter.time_to_burnout)
+	{
+		coder->session->someone_died = 1;
 		pthread_mutex_unlock(&coder->session->session_mutex);
 		return (1);
 	}
@@ -27,17 +31,19 @@ int	is_he_burnedout(t_coder *coder)
 	return (0);
 }
 
-int is_all_coder_done(t_session *session)
+int	is_all_coder_done(t_session *session)
 {
-	int i;
-	int count;
+	int	i;
+	int	count;
+
 	i = 0;
 	count = 0;
 	pthread_mutex_lock(&session->session_mutex);
-	while(i < session->parameter.number_of_coders)
+	while (i < session->parameter.number_of_coders)
 	{
-		if(session->coders[i].compile_count == session->parameter.number_of_compiles_required)
-			count ++;
+		if (session->coders[i].compile_count
+			== session->parameter.number_of_compiles_required)
+			count++;
 		i++;
 	}
 	pthread_mutex_unlock(&session->session_mutex);
@@ -46,48 +52,67 @@ int is_all_coder_done(t_session *session)
 	return (0);
 }
 
-void burned_out(t_coder *coder)
+void	burned_out(t_coder *coder)
 {
 	char	*timestamp;
 	char	*coder_id_char;
+	int		num_coder;
+	int		i;
 
-	pthread_mutex_lock(&coder->session->log_mutex);
 	timestamp = ft_itoa(codexion_clock() - coder->session->start_time);
+	if (timestamp == NULL)
+		return ;
 	coder_id_char = ft_itoa(coder->coder_id + 1);
+	if (coder_id_char == NULL)
+	{
+		free(timestamp);
+		return ;
+	}
+	pthread_mutex_lock(&coder->session->log_mutex);
 	write(1, timestamp, strlen(timestamp));
 	write(1, " ", 1);
 	write(1, coder_id_char, strlen(coder_id_char));
 	write(1, " burned out\n", strlen(" burned out\n"));
 	pthread_mutex_unlock(&coder->session->log_mutex);
+	pthread_mutex_lock(&coder->session->session_mutex);
+	coder->session->someone_died = 1;
+	pthread_mutex_unlock(&coder->session->session_mutex);
+	free(timestamp);
+	free(coder_id_char);
+	num_coder = coder->session->parameter.number_of_coders;
+	i = 0;
+	while (i < num_coder)
+	{
+		pthread_mutex_lock(&coder->session->dongles[i].mutex);
+		pthread_cond_broadcast(&coder->session->dongles[i].condition);
+		pthread_mutex_unlock(&coder->session->dongles[i].mutex);
+		i++;
+	}
 }
 
-void *eying_on(void *arg)
+void	*eying_on(void *arg)
 {
-	t_session *session;
-	int	i;
-	int	N;
+	t_session	*session;
+	int			i;
+	int			num_coder;
 
 	session = (t_session *)arg;
-	N = session->parameter.number_of_coders;
-
+	num_coder = session->parameter.number_of_coders;
 	while (1)
 	{
 		i = 0;
-		while (i < N)
+		while (i < num_coder)
 		{
 			if (is_he_burnedout(&session->coders[i]))
-			{
-				burned_out(&session->coders[i]);
-				return (NULL);
-			}
+				return (burned_out(&session->coders[i]), NULL);
 			i++;
 		}
 		if (is_all_coder_done(session))
 		{
-				pthread_mutex_lock(&session->log_mutex);
-				printf("finished\n");
-				pthread_mutex_unlock(&session->log_mutex);
-				return (NULL);
+			pthread_mutex_lock(&session->log_mutex);
+			write(1, "finished\n", strlen("finished\n"));
+			pthread_mutex_unlock(&session->log_mutex);
+			return (NULL);
 		}
 		usleep(1000);
 	}

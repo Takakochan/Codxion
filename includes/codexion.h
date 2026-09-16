@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:14:50 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/12 14:03:05 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/16 18:12:02 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ typedef struct s_parameter
 	int						time_to_compile;
 	int						time_to_debug;
 	int						time_to_refactor;
-	int						number_of_compiles_required;
+	unsigned int			number_of_compiles_required;
 	int						dongle_cooldown;
 	char					*scheduler;
 }							t_parameter;
@@ -61,7 +61,6 @@ typedef struct s_dongle
 	t_session				*session;
 }							t_dongle;
 
-
 typedef struct s_coder
 {
 	unsigned int			coder_id;
@@ -82,9 +81,8 @@ typedef struct s_session
 	long					start_time;
 	pthread_mutex_t			session_mutex;
 	pthread_mutex_t			log_mutex;
-	int 					someone_died;
+	int						someone_died;
 }							t_session;
-
 
 /*main*/
 int							main(int argc, char **argv);
@@ -100,7 +98,8 @@ int							parser_error_handler(int argc, char **argv);
 t_parameter					parser_init_param(int argc, char **argv);
 
 /*init*/
-t_dongle					*init_dongles(t_parameter params, t_session *session, int N);
+t_dongle					*init_dongles(t_parameter params,
+								t_session *session, int N);
 t_coder						*init_coders(t_session *session, int N);
 t_session					*init_session(t_parameter params);
 
@@ -121,14 +120,14 @@ void						dongle_release(t_dongle *dongle, t_coder *coder);
 void						*coder_workflow(void *arg);
 
 /* eye (monitor)*/
-int						is_all_coder_done(t_session *session);
-int						is_he_burnedout(t_coder *coder);
+int							is_all_coder_done(t_session *session);
+int							is_he_burnedout(t_coder *coder);
 void						*eying_on(void *arg);
-void 					burned_out(t_coder *coder);
+void						burned_out(t_coder *coder);
 
 /* heap */
 int							queue_avoid_double(t_queue *que, t_coder *coder);
-int						enqueue(t_queue *que, t_coder *coder,
+int							enqueue(t_queue *que, t_coder *coder,
 								long timestamp);
 void						dequeue(t_queue *que, int idx);
 int							pick_next(t_queue *que, const char *schedular);
@@ -136,4 +135,3 @@ void						grant_next(t_dongle *dongle);
 void						queue_remove(t_queue *que, t_coder *coder);
 
 #endif
-

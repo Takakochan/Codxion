@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 16:09:57 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/12 13:26:49 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/16 18:08:43 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,12 @@
  * @param coder
  * @return int. if not minus value
  */
-int queue_avoid_double(t_queue *que, t_coder *coder)
+int	queue_avoid_double(t_queue *que, t_coder *coder)
 {
-	int i =0;
-	while(i < que->size)
+	int	i;
+
+	i = 0;
+	while (i < que->size)
 	{
 		if (que->items[i].coder == coder)
 			return (i);
@@ -47,10 +49,13 @@ int	enqueue(t_queue *que, t_coder *coder, long timestamp)
 		return (0);
 	que->items[que->size].coder = coder;
 	que->items[que->size].requested_at = timestamp;
+	pthread_mutex_lock(&coder->session->session_mutex);
 	que->items[que->size].last_compiled = coder->last_compiled;
+	pthread_mutex_unlock(&coder->session->session_mutex);
 	que->size++;
 	return (1);
 }
+
 void	dequeue(t_queue *que, int idx)
 {
 	while (idx + 1 < que->size)
@@ -61,8 +66,7 @@ void	dequeue(t_queue *que, int idx)
 	que->size--;
 }
 
-
-int pick_next(t_queue *que, const char *schedular)
+int	pick_next(t_queue *que, const char *schedular)
 {
 	if (que->size == 0)
 		return (-1);
@@ -82,18 +86,24 @@ int pick_next(t_queue *que, const char *schedular)
 	}
 }
 
+/**
 
-void grant_next(t_dongle *dongle)
+* @brief This function required to call with
+*pthread_mutex_lock(&dongle->mutex);
+ *
+ * @param *dongle
+ * @return void
+ */
+void	grant_next(t_dongle *dongle)
 {
-	int idx;
-	// if dongle is taken or queue is empty
+	int	idx;
+
 	if (dongle->holder || dongle->que.size == 0)
 		return ;
-	//if dongle is cooled down
-	if (codexion_clock() - dongle->released_time < dongle->parameter.dongle_cooldown)
+	if (codexion_clock()
+		- dongle->released_time < dongle->parameter.dongle_cooldown)
 		return ;
 	idx = pick_next(&dongle->que, dongle->parameter.scheduler);
-	//if the queue is empty do nothing
 	if (idx < 0)
 		return ;
 	dongle->holder = dongle->que.items[idx].coder;
@@ -101,13 +111,11 @@ void grant_next(t_dongle *dongle)
 	pthread_cond_broadcast(&dongle->condition);
 }
 
-
-void queue_remove(t_queue *que, t_coder *coder)
+void	queue_remove(t_queue *que, t_coder *coder)
 {
-	int idx;
+	int	idx;
 
 	idx = queue_avoid_double(que, coder);
 	if (idx >= 0)
 		dequeue(que, idx);
 }
-

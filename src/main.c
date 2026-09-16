@@ -6,28 +6,29 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:14:41 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/12 16:27:12 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/16 17:44:42 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-void start_end_session(t_session *session)
+void	start_end_session(t_session *session)
 {
-	int i;
-	int N;
-	pthread_t monitor_thread;
+	int			i;
+	int			num_coder;
+	pthread_t	monitor_thread;
 
 	pthread_create(&monitor_thread, NULL, eying_on, session);
-	N = session->parameter.number_of_coders;
+	num_coder = session->parameter.number_of_coders;
 	i = 0;
-	while (i < N)
+	while (i < num_coder)
 	{
-		pthread_create(&session->coders[i].thread, NULL, coder_workflow, &session->coders[i]);
+		pthread_create(&session->coders[i].thread,
+			NULL, coder_workflow, &session->coders[i]);
 		i++;
 	}
 	i = 0;
-	while (i < N)
+	while (i < num_coder)
 	{
 		pthread_join(session->coders[i].thread, NULL);
 		i++;
@@ -36,22 +37,18 @@ void start_end_session(t_session *session)
 	if (session->dongles)
 	{
 		i = 0;
-		while (i < N)
+		while (i < num_coder)
 		{
 			pthread_mutex_destroy(&session->dongles[i].mutex);
 			pthread_cond_destroy(&session->dongles[i].condition);
 			i++;
 		}
-		free (session->dongles);
+		free(session->dongles);
 	}
-
 	if (session->coders)
 		free(session->coders);
-
 	free(session);
 }
-
-
 
 int	main(int argc, char **argv)
 {
@@ -63,7 +60,5 @@ int	main(int argc, char **argv)
 	if (!session)
 		return (1);
 	start_end_session(session);
-
 	return (0);
 }
-

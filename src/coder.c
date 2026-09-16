@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:23:28 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/12 16:47:33 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/16 17:46:34 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 static int	coder_hand(t_coder *coder)
 {
-	int first;
+	int	first;
 	int	second;
 
 	if (coder->left_hand->dongle_id < coder->right_hand->dongle_id)
@@ -40,7 +40,6 @@ static int	coder_hand(t_coder *coder)
 	dongle_release(coder->left_hand, coder);
 	dongle_release(coder->right_hand, coder);
 	return (0);
-
 }
 
 static void	coder_compiling(t_coder *coder)
@@ -67,34 +66,29 @@ static void	coder_debugging(t_coder *coder)
 static void	coder_refactoring(t_coder *coder)
 {
 	pthread_mutex_lock(&coder->session->session_mutex);
-	coder->compile_count ++;
+	coder->compile_count++;
 	pthread_mutex_unlock(&coder->session->session_mutex);
 	usleep(coder->session->parameter.time_to_refactor * 1000);
 }
 
-
-int	should_coder_stop(t_coder *coder)
-{
-	int	stop;
-
-	pthread_mutex_lock(&coder->session->session_mutex);
-	if (coder->compile_count >= coder->session->parameter.number_of_compiles_required ||
-		coder->session->someone_died == 1)
-		stop = 1;
-	else
-		stop = 0;
-
-	pthread_mutex_unlock(&coder->session->session_mutex);
-	return (stop);
-}
-
 void	*coder_workflow(void *arg)
 {
-	t_coder *coder = arg;
-	while (!should_coder_stop(coder))
+	t_coder	*coder;
+	int		is_done;
+	int		has_someone_died;
+
+	coder = arg;
+	while (1)
 	{
+		pthread_mutex_lock(&coder->session->session_mutex);
+		is_done = (coder->compile_count
+				>= coder->session->parameter.number_of_compiles_required);
+		has_someone_died = coder->session->someone_died;
+		pthread_mutex_unlock(&coder->session->session_mutex);
+		if (is_done || has_someone_died)
+			break ;
 		if (!coder_hand(coder))
-			continue;
+			continue ;
 		coder_compiling(coder);
 		coder_dongle_release(coder);
 		coder_debugging(coder);
