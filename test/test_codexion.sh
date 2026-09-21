@@ -157,7 +157,7 @@ test_death() {
 	local cases=(
 		"4 310 200 100 100 100 0 fifo"
 		"2 200 300 100 100 100 0 fifo"
-		"5 600 150 150 150 100 0 edf"
+		"5 600 650 150 150 100 0 edf"
 	)
 	for c in "${cases[@]}"; do
 		out=$(timeout 10 $BIN $c 2>&1)

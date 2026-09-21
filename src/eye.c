@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:13:36 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/16 17:55:21 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/21 18:44:07 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,13 +20,14 @@ int	is_he_burnedout(t_coder *coder)
 		pthread_mutex_unlock(&coder->session->session_mutex);
 		return (1);
 	}
-	if (codexion_clock()
-		- coder->last_compiled >= coder->session->parameter.time_to_burnout)
+	if ((codexion_clock() - coder->last_compiled) >= coder->session->parameter.time_to_burnout)
 	{
+		// printf("%ld\n", (codexion_clock() - coder->last_compiled));
 		coder->session->someone_died = 1;
 		pthread_mutex_unlock(&coder->session->session_mutex);
 		return (1);
 	}
+	// printf("%ld\n", (codexion_clock() - coder->last_compiled));
 	pthread_mutex_unlock(&coder->session->session_mutex);
 	return (0);
 }

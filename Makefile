@@ -10,10 +10,10 @@ NAME	=	codexion
 
 #++++++++++COMPILER+++++++++++
 CC      := cc
-CFLAGS  := -Wall -Wextra -g -pthread -I includes
+CFLAGS  := -Wall -Wextra -Werror -g -pthread -I includes
 RM      := rm -f
 RMDIR   := rm -rf
-SRCS    := src/main.c src/parser.c src/init.c src/utils.c src/coder.c src/dongle.c src/eye.c src/heap.c
+SRCS    := src/main.c src/parser.c src/init.c src/utils.c src/utils2.c src/coder.c src/dongle.c src/eye.c src/heap.c
 OBJS    := $(SRCS:.c=.o)
 
 #++++++++++RULES+++++++++++
