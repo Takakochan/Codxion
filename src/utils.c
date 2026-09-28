@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:14:11 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/18 15:56:39 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/22 16:29:06 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ void	print_log(t_coder *coder, char *str)
 	if (!coder->session->someone_died)
 	{
 		pthread_mutex_unlock(&coder->session->session_mutex);
-		// printf("%*s", total_space, "");
+		printf("%*s", total_space, "");
 		printf("%ld %u %s\n", timestamp, coder->coder_id + 1, str);
 	}
 	else

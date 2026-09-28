@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:14:50 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/21 18:41:13 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/28 20:12:28 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,8 +98,9 @@ int							parser_error_handler(int argc, char **argv);
 t_parameter					parser_init_param(int argc, char **argv);
 
 /*init*/
-t_dongle					*init_dongles(t_parameter params,
-								t_session *session, int N);
+t_dongle	*init_dongles(t_parameter params,
+						t_session *session,
+						int N);
 t_coder						*init_coders(t_session *session, int N);
 t_session					*init_session(t_parameter params);
 
@@ -118,6 +119,7 @@ void						dongle_release(t_dongle *dongle, t_coder *coder);
 
 /* coder */
 void						*coder_workflow(void *arg);
+int							coder_hand(t_coder *coder);
 
 /* eye (monitor)*/
 int							is_all_coder_done(t_session *session);

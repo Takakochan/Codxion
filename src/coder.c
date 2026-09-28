@@ -6,41 +6,11 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:23:28 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/21 19:17:18 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/28 20:13:16 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
-
-static int	coder_hand(t_coder *coder)
-{
-	int	first;
-	int	second;
-
-	if (coder->left_hand->dongle_id < coder->right_hand->dongle_id)
-	{
-		first = dongle_take(coder->left_hand, coder);
-		if (first)
-			print_log(coder, " has taken a dongle");
-		second = dongle_take(coder->right_hand, coder);
-		if (second)
-			print_log(coder, " has taken a dongle");
-	}
-	else
-	{
-		first = dongle_take(coder->right_hand, coder);
-		if (first)
-			print_log(coder, " has taken a dongle");
-		second = dongle_take(coder->left_hand, coder);
-		if (second)
-			print_log(coder, " has taken a dongle");
-	}
-	if (first && second)
-		return (1);
-	dongle_release(coder->left_hand, coder);
-	dongle_release(coder->right_hand, coder);
-	return (0);
-}
 
 static void	coder_compiling(t_coder *coder)
 {
@@ -68,6 +38,7 @@ static void	coder_refactoring(t_coder *coder)
 	pthread_mutex_lock(&coder->session->session_mutex);
 	coder->compile_count++;
 	pthread_mutex_unlock(&coder->session->session_mutex);
+	print_log(coder, " is refactoring");
 	usleep(coder->session->parameter.time_to_refactor * 1000);
 }
 

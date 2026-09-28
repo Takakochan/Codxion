@@ -6,11 +6,25 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:14:41 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/18 16:50:14 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/28 19:28:58 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
+
+void	free_dongles(int num_coder, t_session *session)
+{
+	int	i;
+
+	i = 0;
+	while (i < num_coder)
+	{
+		pthread_mutex_destroy(&session->dongles[i].mutex);
+		pthread_cond_destroy(&session->dongles[i].condition);
+		i++;
+	}
+	free(session->dongles);
+}
 
 void	start_end_session(t_session *session)
 {
@@ -35,16 +49,7 @@ void	start_end_session(t_session *session)
 	}
 	pthread_join(monitor_thread, NULL);
 	if (session->dongles)
-	{
-		i = 0;
-		while (i < num_coder)
-		{
-			pthread_mutex_destroy(&session->dongles[i].mutex);
-			pthread_cond_destroy(&session->dongles[i].condition);
-			i++;
-		}
-		free(session->dongles);
-	}
+		free_dongles(num_coder, session);
 	if (session->coders)
 		free(session->coders);
 	free(session);

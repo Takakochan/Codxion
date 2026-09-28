@@ -191,7 +191,7 @@ test_death() {
 test_finish() {
 	head_ "正常終了（required 回に達したら全員生存で終了）"
 	local cases=(
-		"5 800 200 200 200 3 0 fifo:3 *trickey"
+		"5 800 200 200 200 3 0 fifo:3"
 		"5 800 200 200 200 1 0 edf:1"
 		"2 800 200 200 200 5 0 fifo:5"
 		"200 800 200 200 200 2 0 fifo:2"

@@ -6,19 +6,12 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 16:09:57 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/18 16:32:43 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/28 17:04:39 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-/**
- * @brief Checks if there are the same coder in the queue
- *
- * @param que
- * @param coder
- * @return int. if not minus value
- */
 int	queue_avoid_double(t_queue *que, t_coder *coder)
 {
 	int	i;
@@ -33,14 +26,6 @@ int	queue_avoid_double(t_queue *que, t_coder *coder)
 	return (-1);
 }
 
-/**
- * @brief
- *
- * @param que
- * @param coder
- * @param timestamp
- * @return int
- */
 int	enqueue(t_queue *que, t_coder *coder, long timestamp)
 {
 	if (queue_avoid_double(que, coder) >= 0)
@@ -86,14 +71,6 @@ int	pick_next(t_queue *que, const char *schedular)
 	}
 }
 
-/**
-
-* @brief This function required to call with
-*pthread_mutex_lock(&dongle->mutex);
- *
- * @param *dongle
- * @return void
- */
 void	grant_next(t_dongle *dongle)
 {
 	int	idx;
@@ -104,7 +81,7 @@ void	grant_next(t_dongle *dongle)
 		- dongle->released_time < dongle->parameter.dongle_cooldown)
 		return ;
 	idx = pick_next(&dongle->que, dongle->parameter.scheduler);
-	if (idx < 0)
+	if (idx == -1)
 		return ;
 	dongle->holder = dongle->que.items[idx].coder;
 	dequeue(&dongle->que, idx);

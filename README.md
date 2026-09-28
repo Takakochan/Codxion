@@ -19,10 +19,11 @@ scheduling — master resource synchronization before burnout strikes.
 Each coder is a thread sitting at a shared table. To compile, a coder needs two
 dongles — the one on their left and the one on their right — but there are only
 as many dongles as there are coders, so neighbours can never compile at the same
-time. A coder alternates between compiling, cooling down and thinking. If a coder
-goes longer than `time_to_burnout` without starting a compile, they burn out and
-the session ends. A separate monitor thread watches for burnout and for the moment
-every coder has compiled enough times.
+time. A coder cycles through compiling, debugging, and refactoring, then
+immediately tries to compile again. If a coder goes longer than `time_to_burnout`
+without starting a compile, they burn out and the session ends. A separate monitor
+thread watches for burnout and for the moment every coder has compiled enough
+times.
 
 ## Instructions
 
@@ -38,7 +39,7 @@ make fclean # removes object files and the binary
 Compiler flags:
 
 ```
-CFLAGS := -Wall -Wextra -Werror -g -pthread -I includes
+CFLAGS = -Wall -Wextra -Werror -pthread -I includes
 ```
 
 `make clean`, `make fclean` and `make re` behave as usual.
@@ -46,18 +47,21 @@ CFLAGS := -Wall -Wextra -Werror -g -pthread -I includes
 ### Usage
 
 ```bash
-./codexion <number_of_coders> <time_to_burnout> <time_to_compile> <time_to_cooldown> [number_of_compiles]
+./codexion <number_of_coders> <time_to_burnout> <time_to_compile> <time_to_debug> <time_to_refactor> <number_of_compiles_required> <dongle_cooldown> <scheduler>
 ```
+
+All 8 arguments are mandatory.
 
 | Argument | Unit | Meaning |
 | --- | --- | --- |
 | `number_of_coders` | count | Number of coder threads, and of dongles on the table |
 | `time_to_burnout` | ms | Max time a coder may go without starting a compile |
 | `time_to_compile` | ms | How long a compile takes (both dongles held) |
-| `time_to_cooldown` | ms | How long a coder cools down after compiling |
-| `number_of_compiles_required` | count | Optional. If given, the session ends once every coder has compiled this many times |
+| `time_to_debug` | ms | How long a coder spends debugging after compiling |
+| `time_to_refactor` | ms | How long a coder spends refactoring; afterwards it immediately tries to compile again |
+| `number_of_compiles_required` | count | The session ends successfully once every coder has compiled this many times |
 | `dongle_cooldown` | ms | after being released, a dongle is unavailable until its cooldown has passed. |
-| `scheduler` |	fifo / edf |	Arbitration policy used to decide who gets a contested dongl |
+| `scheduler` |	fifo / edf |	Arbitration policy used to decide who gets a contested dongle |
 
 Examples:
 
@@ -97,11 +101,14 @@ A deadlock in the classic Dining Philosophers problem happens when every coder g
 
 ### The single-coder case
 
-With `number_of_coders = 1` there is only one dongle on the table. The coder picks
-it up, waits for a second one that will never arrive, and burns out once
-`time_to_burnout` has elapsed. This is handled explicitly rather than by letting
-the coder block forever on `pthread_mutex_lock`, which would hang the program
-instead of printing the burnout line and exiting.
+With `number_of_coders = 1` there is only one dongle on the table, and both of the
+coder's hands (`left_hand`/`right_hand`) point at that same `t_dongle`. The coder
+picks it up on the first `dongle_take` call; the second call sees
+`dongle->holder == coder` (itself) and recognizes that this can never resolve — no
+one else could ever release it — so it waits once via `dongle_wait` and gives up,
+rather than looping forever. The coder is left holding its one dongle, never
+compiles, and burns out once `time_to_burnout` has elapsed, exactly like a coder
+that legitimately could not get a second dongle in time.
 
 
 ### Starvation prevention
@@ -127,13 +134,22 @@ stale value.
 
 ### Log serialization
 
-All output passes through a single `log_mutex`, so two coders can never interleave
-their writes mid-line. The same mutex also guards the `stop` flag, and this is what
-makes the last line reliable: the monitor sets `stop` and prints the terminal
-message inside one critical section, while every ordinary log call checks `stop`
-inside that same critical section before printing. A coder that was about to print
-therefore either gets in before the terminal line or does not print at all — no
-message can appear after `burned out` or `finished`.
+All output passes through `log_mutex`, so two coders can never interleave their
+writes mid-line, and the `burned out`/`finished` lines can never interleave with an
+ordinary state-change line either. The stop flag itself (`session->someone_died`)
+is a separate field guarded by `session_mutex`, not by `log_mutex`: `print_log`
+(`src/utils.c`) checks it under `session_mutex` — once before doing any work, and
+again right before the actual `printf` — and silently skips printing if it is set,
+so state-change lines stop appearing once a burnout has been detected. `burned_out`
+(`src/eye.c`) prints its line under `log_mutex` first and only then sets
+`someone_died` under `session_mutex`, as two separate critical sections rather than
+one combined one. In practice this means no *new* work starts after a burnout, but
+when a program's stdout is piped or redirected (as opposed to a live terminal),
+buffered `printf` output can still be flushed to the file *after* the unbuffered
+`write()` call used for the burnout line, so a few already-in-flight lines with
+timestamps from *before* the burnout can visually appear below it — a display
+ordering artifact of stdio buffering, not a logic bug (the timestamp on each line
+is still the true one).
 
 ## Thread synchronization mechanisms
 
@@ -143,15 +159,22 @@ message can appear after `burned out` or `finished`.
 | --- | --- | --- |
 | Dongles | Neighbouring coders | One `pthread_mutex_t` per dongle |
 | `stdout` | All coders and the monitor | `log_mutex` |
-| `stop` flag | Monitor (writer), all coders (readers) | `log_mutex` |
+| `someone_died` flag | Monitor (writer), all coders (readers) | `session_mutex` |
 | `last_compiled`, compile counters | Owning coder (writer), monitor (reader) | `session_mutex` |
 
 ### pthread_mutex_t
 
-Dongles are plain mutexes; taking a dongle is `pthread_mutex_lock` on it and
-putting it back is `pthread_mutex_unlock`. Because the mutex *is* the resource, a
-coder cannot compile without genuinely holding both, and the kernel handles the
-queueing of waiters.
+Each dongle's mutex does *not* double as the held resource itself — it only
+protects that dongle's short-lived bookkeeping (`holder`, the wait queue) while
+`dongle_take`, `dongle_release`, and `grant_next` (`src/dongle.c`, `src/heap.c`)
+read or write it. Logical ownership is a separate field, `dongle->holder` (a
+`t_coder *`, `NULL` when free), which a coder can hold across many other lock/
+unlock cycles elsewhere while it is compiling. `dongle_take` enqueues the
+requesting coder (`t_queue`, at most 2 entries) and loops — releasing the mutex,
+sleeping a short slice, relocking it — until `grant_next` has set `holder` to that
+exact coder, so a coder cannot compile without genuinely holding both dongles, but
+the queueing and fairness (fifo/edf) are arbitrated by this code, not by the OS
+mutex implementation.
 
 `session_mutex` and `log_mutex` are kept separate on purpose. Timing data is read
 by the monitor on every 1 ms sweep, while logging happens only on state changes;
@@ -159,32 +182,34 @@ putting both behind one mutex would make coders contend with the monitor's polli
 for no reason.
 
 Every read of shared state copies the value into a local variable and unlocks
-before returning it, so a mutex is never left held across a `return`:
+before acting on it, so a mutex is never left held across a `continue` or `break`.
+This is the actual check at the top of each coder's loop (`coder_workflow` in
+`src/coder.c`):
 
 ```c
-int	should_stop(t_session *session)
-{
-	int	stop;
-
-	pthread_mutex_lock(&session->log_mutex);
-	stop = session->stop;
-	pthread_mutex_unlock(&session->log_mutex);
-	return (stop);
-}
+pthread_mutex_lock(&coder->session->session_mutex);
+is_done = (coder->compile_count
+		>= coder->session->parameter.number_of_compiles_required);
+has_someone_died = coder->session->someone_died;
+pthread_mutex_unlock(&coder->session->session_mutex);
+if (is_done || has_someone_died)
+	break ;
 ```
 
 ### Monitor to coder communication
 
 Threads cannot be stopped from the outside — a thread ends only by returning from
 its start routine. Termination is therefore cooperative. The monitor never tries to
-kill anyone: it sets `stop` under `log_mutex` and returns. Each coder tests `stop`
-at the top of its loop and returns on its own. `main` then joins the monitor and
-every coder, and only afterwards destroys the mutexes and frees the session, so no
-thread can touch memory that has already been released.
+kill anyone: `burned_out` (`src/eye.c`) sets `session->someone_died` under
+`session_mutex` and `eying_on` then returns. Each coder tests `someone_died` at the
+top of its loop, under the same `session_mutex`, and returns on its own. `main`
+(via `start_end_session`) then joins the monitor and every coder, and only
+afterwards destroys the mutexes and frees the session, so no thread can touch
+memory that has already been released.
 
 A coder that bails out mid-cycle unlocks every dongle it is holding before
 returning. Skipping that would leave a neighbour blocked forever inside
-`pthread_mutex_lock`, unable to reach its own `stop` check, and `main` would hang
+`dongle_take`, unable to reach its own `someone_died` check, and `main` would hang
 in `pthread_join`.
 
 Note that `exit()` is deliberately not used to end the session. It would terminate
@@ -193,13 +218,44 @@ the process while other threads are still running, skipping the joins, the
 
 ### Custom event implementation
 
-> **TODO:** same — document it if you built one, delete the section if you did not.
+No custom event mechanism was built. Each dongle does declare a
+`pthread_cond_t condition`, and `dongle_release`/`grant_next`/`burned_out`
+broadcast on it whenever a dongle changes state, but the waiting side
+(`dongle_wait` in `src/dongle.c`) currently does not call `pthread_cond_wait` or
+`pthread_cond_timedwait` on it — it waits by repeatedly unlocking the dongle's
+mutex, sleeping a short slice (`usleep`), and relocking it. The broadcasts are
+therefore currently inert; the actual wake-up mechanism is the polling loop, not
+the condition variable.
 
 ## Resources
 
-> **TODO:** list what you actually used. Candidates:
-
-- `man 3 pthread_create`, `man 3 pthread_join`, `man 3 pthread_mutex_lock`, `man 2 gettimeofday`
+- `man 3 pthread_create`, `man 3 pthread_join`, `man 3 pthread_mutex_lock`, `man 3 pthread_cond_broadcast`, `man 2 gettimeofday`
 - Dijkstra, E. W. — *Hierarchical Ordering of Sequential Processes* (1971), the origin of the dining philosophers problem
-- Coffman, E. G., Elphick, M., Shoshani, A. — *System Deadlocks* (1971), the four conditions
+- Coffman, E. G., Elphick, M., Shoshani, A. — *System Deadlocks* (1971), the four conditions (used here for the deadlock-prevention discussion above)
 - Butenhof, D. R. — *Programming with POSIX Threads*
+- **Earliest Deadline First (EDF)** scheduling, used as one of the two dongle-arbitration policies (`scheduler` argument)
+
+### AI usage
+
+AI (Claude, via Claude Code) was used throughout this project's development and
+debugging, with every explanation checked against the program's actual behavior
+rather than taken on faith:
+
+- Reviewing the multithreaded design in `dongle.c`, `heap.c`, `coder.c` and
+  `eye.c` for concurrency bugs — deadlocks, starvation, and races around the
+  shared `dongle->holder` state and the `someone_died` flag.
+- Diagnosing concrete bugs this way, including: a race where two coders could
+  both believe they had been granted the same dongle, a self-deadlock inside the
+  dongle-acquisition wait path, a memory leak caused by calling `exit()` from the
+  monitor thread on burnout, the burnout log always reporting coder 1 regardless
+  of who actually burned out, an already-finished coder being incorrectly
+  reported as burned out, and a coder that acquired one dongle but not the other
+  releasing it and re-triggering its cooldown for no reason.
+- Verifying fixes empirically: rebuilding and running many scenarios, checking
+  memory with Valgrind and thread issues with Helgrind, and using temporarily
+  instrumented builds to log every dongle grant/release/queue decision and
+  confirm, offline, that mutual exclusion, the cooldown window, FIFO order, and
+  the EDF comparison itself were never violated across many stress runs.
+- Reading this project's own PDF subject to check the implementation against its
+  explicit requirements (Makefile flags, Norm compliance, the required log
+  format, the allowed external functions, the required README sections).

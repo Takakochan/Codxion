@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:15:30 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/16 18:11:43 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/28 17:04:50 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ int	is_fifo_edf(char *str)
 	if (strcmp(str, "fifo") != 0 && strcmp(str, "edf") != 0)
 	{
 		fprintf(stderr,
-			"Error: Scheduler(last parameter) must be 'fifo or 'edf\n");
+				"Error: Scheduler(last parameter) must be 'fifo or 'edf\n");
 		exit(EXIT_FAILURE);
 	}
 	return (1);
