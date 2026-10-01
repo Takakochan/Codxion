@@ -121,7 +121,7 @@ Each dongle keeps a small wait queue (`t_queue`, at most 2 entries exactly the n
 
 ### Precise burnout detection
 
-Burnout is detected by a dedicated monitor thread (`eying_on`) rather than by the
+Burnout is detected by a dedicated monitor thread (`watching`) rather than by the
 coders themselves. The monitor loops over every coder, compares
 `codexion_clock() - coder->last_compiled` against `time_to_burnout` while holding
 `session_mutex`, and sleeps 1 ms between sweeps. The poll interval is short
@@ -201,7 +201,7 @@ if (is_done || has_someone_died)
 Threads cannot be stopped from the outside — a thread ends only by returning from
 its start routine. Termination is therefore cooperative. The monitor never tries to
 kill anyone: `burned_out` (`src/eye.c`) sets `session->someone_died` under
-`session_mutex` and `eying_on` then returns. Each coder tests `someone_died` at the
+`session_mutex` and `watching` then returns. Each coder tests `someone_died` at the
 top of its loop, under the same `session_mutex`, and returns on its own. `main`
 (via `start_end_session`) then joins the monitor and every coder, and only
 afterwards destroys the mutexes and frees the session, so no thread can touch
@@ -237,25 +237,12 @@ the condition variable.
 
 ### AI usage
 
-AI (Claude, via Claude Code) was used throughout this project's development and
-debugging, with every explanation checked against the program's actual behavior
+AI (Claude, via Claude Code) was used throughout this project's debugging,
+with every explanation checked against the program's actual behavior
 rather than taken on faith:
 
-- Reviewing the multithreaded design in `dongle.c`, `heap.c`, `coder.c` and
-  `eye.c` for concurrency bugs — deadlocks, starvation, and races around the
-  shared `dongle->holder` state and the `someone_died` flag.
-- Diagnosing concrete bugs this way, including: a race where two coders could
-  both believe they had been granted the same dongle, a self-deadlock inside the
-  dongle-acquisition wait path, a memory leak caused by calling `exit()` from the
-  monitor thread on burnout, the burnout log always reporting coder 1 regardless
-  of who actually burned out, an already-finished coder being incorrectly
-  reported as burned out, and a coder that acquired one dongle but not the other
-  releasing it and re-triggering its cooldown for no reason.
-- Verifying fixes empirically: rebuilding and running many scenarios, checking
-  memory with Valgrind and thread issues with Helgrind, and using temporarily
-  instrumented builds to log every dongle grant/release/queue decision and
-  confirm, offline, that mutual exclusion, the cooldown window, FIFO order, and
-  the EDF comparison itself were never violated across many stress runs.
-- Reading this project's own PDF subject to check the implementation against its
-  explicit requirements (Makefile flags, Norm compliance, the required log
-  format, the allowed external functions, the required README sections).
+- Checking the cause of the Helgrind error, eventually claude did not find
+  the alternative solution or fix for `pthread_cond_timewait`.
+  But my collegue Kim found that I should replace with `usleep` and finally I managed to
+  shut the error up.
+

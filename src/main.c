@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:14:41 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/28 19:28:58 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/29 18:13:04 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ void	start_end_session(t_session *session)
 	int			num_coder;
 	pthread_t	monitor_thread;
 
-	pthread_create(&monitor_thread, NULL, eying_on, session);
+	pthread_create(&monitor_thread, NULL, watching, session);
 	num_coder = session->parameter.number_of_coders;
 	i = 0;
 	while (i < num_coder)

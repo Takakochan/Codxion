@@ -6,40 +6,28 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:15:30 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/28 17:04:50 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/10/01 15:39:53 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
-int	error_num_parameter(int argc)
-{
-	if (argc != 9)
-	{
-		fprintf(stderr, "Error: Missing some parameter");
-		exit(EXIT_FAILURE);
-	}
-	return (1);
-}
-
-int	is_valid_num(char *str)
+int	is_valid_num(char *str, const char *name)
 {
 	int	i;
 
 	i = 0;
 	if (str[i] == '\0')
 	{
-		fprintf(stderr, "Error: Empty input");
+		fprintf(stderr, "Error: %s is empty\n", name);
 		exit(EXIT_FAILURE);
 	}
 	while (str[i])
 	{
 		if (str[i] < '0' || str[i] > '9')
 		{
-			fprintf(stderr, "Error: Invalid numerical input '%s'\n", str);
+			fprintf(stderr, "Error: %s has an invalid numerical value '%s'\n",
+				name, str);
 			exit(EXIT_FAILURE);
 		}
 		i++;
@@ -52,7 +40,7 @@ int	is_fifo_edf(char *str)
 	if (strcmp(str, "fifo") != 0 && strcmp(str, "edf") != 0)
 	{
 		fprintf(stderr,
-				"Error: Scheduler(last parameter) must be 'fifo or 'edf\n");
+			"Error: Scheduler(last parameter) must be 'fifo or 'edf\n");
 		exit(EXIT_FAILURE);
 	}
 	return (1);
@@ -70,13 +58,17 @@ int	num_coders(char *str)
 
 int	parser_error_handler(int argc, char **argv)
 {
-	int	i;
+	int			i;
+	const char	*names[8] = {
+		"", "number_of_coders", "time_to_burnout", "time_to_compile",
+		"time_to_debug", "time_to_refactor", "number_of_compiles_required",
+		"dongle_cooldown"};
 
 	error_num_parameter(argc);
 	i = 1;
 	while (i <= 7)
 	{
-		is_valid_num(argv[i]);
+		is_valid_num(argv[i], names[i]);
 		i++;
 	}
 	num_coders(argv[1]);

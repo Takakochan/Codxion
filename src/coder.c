@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:23:28 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/28 20:13:16 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/09/29 18:09:03 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,14 @@ static void	coder_refactoring(t_coder *coder)
 	print_log(coder, " is refactoring");
 	usleep(coder->session->parameter.time_to_refactor * 1000);
 }
+
+/**
+ * @brief For a coder's infinite work rutin untill he reaches
+ * required compilation time or someone die
+ *
+ * @param arg
+ * @return void*
+ */
 
 void	*coder_workflow(void *arg)
 {

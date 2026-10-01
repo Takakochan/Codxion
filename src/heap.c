@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/31 16:09:57 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/28 17:04:39 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/10/01 15:29:50 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,31 +26,13 @@ int	queue_avoid_double(t_queue *que, t_coder *coder)
 	return (-1);
 }
 
-int	enqueue(t_queue *que, t_coder *coder, long timestamp)
-{
-	if (queue_avoid_double(que, coder) >= 0)
-		return (1);
-	else if (que->size >= 2)
-		return (0);
-	que->items[que->size].coder = coder;
-	que->items[que->size].requested_at = timestamp;
-	pthread_mutex_lock(&coder->session->session_mutex);
-	que->items[que->size].last_compiled = coder->last_compiled;
-	pthread_mutex_unlock(&coder->session->session_mutex);
-	que->size++;
-	return (1);
-}
-
-void	dequeue(t_queue *que, int idx)
-{
-	while (idx + 1 < que->size)
-	{
-		que->items[idx] = que->items[idx + 1];
-		idx++;
-	}
-	que->size--;
-}
-
+/**
+ * @brief pick one coder from the queue depending on
+ *        the schedular fifo ot edf
+ * @param que
+ * @param schedular
+ * @return int
+ */
 int	pick_next(t_queue *que, const char *schedular)
 {
 	if (que->size == 0)
@@ -71,6 +53,11 @@ int	pick_next(t_queue *que, const char *schedular)
 	}
 }
 
+/**
+  * @brief grant dongle if the dongle is cooled-down,
+  *        available to the one pick_next chose.
+  * @param dongle
+  */
 void	grant_next(t_dongle *dongle)
 {
 	int	idx;
@@ -88,6 +75,12 @@ void	grant_next(t_dongle *dongle)
 	pthread_cond_broadcast(&dongle->condition);
 }
 
+/**
+ * @brief Remove if the coder is already in the queue
+ *
+ * @param que
+ * @param coder
+ */
 void	queue_remove(t_queue *que, t_coder *coder)
 {
 	int	idx;

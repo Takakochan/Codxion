@@ -13,7 +13,7 @@ CC      := cc
 CFLAGS  := -Wall -Wextra -Werror -g -pthread -I includes
 RM      := rm -f
 RMDIR   := rm -rf
-SRCS    := src/main.c src/parser.c src/init.c src/utils.c src/utils2.c src/coder.c src/coder2.c src/dongle.c src/eye.c src/heap.c
+SRCS    := src/main.c src/parser.c src/parser2.c src/init.c src/utils.c src/utils2.c src/coder.c src/coder2.c src/dongle.c src/eye.c src/heap.c src/queue.c
 OBJS    := $(SRCS:.c=.o)
 
 #++++++++++RULES+++++++++++

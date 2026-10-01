@@ -6,7 +6,7 @@
 /*   By: tkunugi <takakokunugi@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 15:14:50 by tkunugi           #+#    #+#             */
-/*   Updated: 2026/09/28 20:12:28 by tkunugi          ###   ########.fr       */
+/*   Updated: 2026/10/01 15:43:31 by tkunugi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,7 @@ void						start_end_session(t_session *session);
 
 /*parser*/
 int							error_num_parameter(int argc);
-int							is_valid_num(char *str);
+int							is_valid_num(char *str, const char *name);
 int							is_fifo_edf(char *str);
 int							parser_error_handler(int argc, char **argv);
 
@@ -98,9 +98,8 @@ int							parser_error_handler(int argc, char **argv);
 t_parameter					parser_init_param(int argc, char **argv);
 
 /*init*/
-t_dongle	*init_dongles(t_parameter params,
-						t_session *session,
-						int N);
+t_dongle					*init_dongles(t_parameter params,
+								t_session *session, int num_coder);
 t_coder						*init_coders(t_session *session, int N);
 t_session					*init_session(t_parameter params);
 
@@ -124,7 +123,7 @@ int							coder_hand(t_coder *coder);
 /* eye (monitor)*/
 int							is_all_coder_done(t_session *session);
 int							is_he_burnedout(t_coder *coder);
-void						*eying_on(void *arg);
+void						*watching(void *arg);
 void						burned_out(t_coder *coder);
 
 /* heap */
